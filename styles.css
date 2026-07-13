@@ -15,22 +15,22 @@
 
 body {
     font-family: var(--font-family);
-    overflow: hidden; /* Prevent body scroll, scroll inside screens */
+    overflow: hidden;
     background-color: #000;
     user-select: none;
 }
 
-/* Background Layer */
+/* Background Layer — full viewport */
 .app-bg {
-    position: absolute;
+    position: fixed;
     top: 0; left: 0;
-    width: 100%; height: 100%;
+    width: 100vw; height: 100vh;
     background-image: url('bg.png');
-    background-position: center center; /* Keep vanishing point visible on landscape */
+    background-position: center center;
     background-size: cover;
     background-repeat: no-repeat;
     transition: transform 1s cubic-bezier(0.7, 0, 0.3, 1), opacity 0.5s ease;
-    transform-origin: 50% 100%; /* Zoom into the bottom center where the white line is */
+    transform-origin: 50% 100%;
     overflow: hidden;
 }
 
@@ -50,12 +50,12 @@ body {
 }
 
 .app-bg.zoom-in {
-    transform: scale(1.1); /* Very subtle zoom */
+    transform: scale(1.15);
 }
 
 .app-bg.zoom-in::after {
     opacity: 1;
-    transform: translateX(-50%) scale(15); /* Expands the white stripe */
+    transform: translateX(-50%) scale(20);
 }
 
 .app-bg.blurred {
@@ -66,14 +66,12 @@ body {
     opacity: 0;
 }
 
+/* Container — full viewport, no width limit */
 .app-container {
     width: 100vw;
     height: 100vh;
-    max-width: 450px;
-    margin: 0 auto;
     position: relative;
     overflow: hidden;
-    background-color: #000;
 }
 
 .screen {
@@ -93,127 +91,149 @@ body {
     to { opacity: 1; }
 }
 
-/* 1. Home Screen */
+/* ========================================
+   1. Home Screen
+   ======================================== */
 #screen-home {
     justify-content: center;
     align-items: center;
     cursor: pointer;
 }
+
 .logo-433-wrapper {
     position: relative;
-    width: 80%;
+    width: 320px;
     max-width: 400px;
     mix-blend-mode: screen;
     opacity: 0.9;
-    transform: translateY(-15vh);
+    transform: translateY(-10vh);
 }
+
 .logo-part {
     width: 100%;
     display: block;
     position: absolute;
     top: 0; left: 0;
 }
+
 .logo-left {
     position: relative;
     clip-path: polygon(0 0, 47% 0, 47% 100%, 0 100%);
 }
+
 .logo-right {
     clip-path: polygon(53% 0, 100% 0, 100% 100%, 53% 100%);
 }
+
 .logo-colon {
     clip-path: polygon(47% 0, 53% 0, 53% 100%, 47% 100%);
 }
+
 .blink {
     animation: blinker 2s step-start infinite;
 }
+
 @keyframes blinker {
     50% { opacity: 0; }
 }
 
-/* 2. Menu Screen */
+/* ========================================
+   2. Menu Screen
+   ======================================== */
 #screen-menu {
     justify-content: center;
     align-items: center;
     color: var(--text-dark);
 }
+
 .search-box-wrapper {
     margin-bottom: 50px;
     width: 80%;
-    max-width: 300px;
+    max-width: 400px;
     position: relative;
 }
+
 .search-input {
     background: transparent;
     border: none;
     border-bottom: 1px solid rgba(0,0,0,0.4);
     color: var(--text-dark);
-    padding: 5px 5px 5px 30px;
-    font-size: 16px;
+    padding: 8px 8px 8px 35px;
+    font-size: 18px;
     width: 100%;
     outline: none;
     font-family: var(--font-family);
     font-weight: 300;
     text-transform: uppercase;
 }
+
 .search-input::placeholder {
     color: rgba(0,0,0,0.4);
 }
+
 .search-icon {
     position: absolute;
     left: 0;
     top: 50%;
     transform: translateY(-50%);
-    width: 18px; height: 18px;
+    width: 20px; height: 20px;
     fill: none;
     stroke: currentColor;
     stroke-width: 1.5;
 }
+
 .menu-list {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 25px;
+    gap: 30px;
 }
+
 .menu-item {
-    font-size: 42px;
+    font-size: 52px;
     font-weight: 300;
     text-transform: uppercase;
     cursor: pointer;
-    transition: opacity 0.2s;
+    transition: opacity 0.2s, letter-spacing 0.3s;
 }
+
 .menu-item:hover {
     opacity: 0.7;
+    letter-spacing: 4px;
 }
 
 .menu-bottom-arrow {
     position: absolute;
-    bottom: 40px;
+    bottom: 50px;
     left: 50%;
     transform: translateX(-50%);
     cursor: pointer;
 }
+
 .menu-bottom-arrow svg {
-    width: 40px; height: 40px;
+    width: 44px; height: 44px;
     fill: none;
     stroke: var(--text-dark);
     stroke-width: 1;
 }
+
 .menu-logo-img {
     position: absolute;
-    bottom: 30px;
-    right: 30px;
-    width: 80px;
+    bottom: 40px;
+    right: 40px;
+    width: 100px;
     height: auto;
-    max-height: 80px;
+    max-height: 100px;
     object-fit: contain;
-    mix-blend-mode: multiply; /* Removes white background from the logo */
+    mix-blend-mode: multiply;
 }
 
-/* Light Screens (Submenus, Content) */
+/* ========================================
+   Light Screens (Submenus, Content)
+   ======================================== */
 .screen-light {
     background: var(--bg-light);
     color: var(--text-dark);
-    /* subtle top vignette using box-shadow */
     box-shadow: inset 0 60px 80px -30px rgba(0,0,0,0.3);
     overflow-y: auto;
 }
@@ -223,13 +243,14 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
+    padding: 30px 40px;
     position: relative;
-    margin-top: 15px;
+    margin-top: 20px;
 }
+
 .back-btn {
     position: absolute;
-    left: 20px;
+    left: 40px;
     cursor: pointer;
     background: none;
     border: none;
@@ -237,92 +258,117 @@ body {
     display: flex;
     align-items: center;
 }
+
 .back-btn svg {
-    width: 28px; height: 28px;
+    width: 32px; height: 32px;
     fill: none;
     stroke: var(--text-dark);
     stroke-width: 1.5;
 }
+
 .header-title {
-    font-size: 42px;
+    font-size: 48px;
     font-weight: 300;
     text-transform: uppercase;
 }
 
 .light-search {
-    margin: 10px auto 40px;
+    margin: 10px auto 50px;
     width: 80%;
-    max-width: 300px;
+    max-width: 500px;
 }
+
 .light-search .search-input {
     border-bottom: 1px solid rgba(0,0,0,0.3);
     color: var(--text-dark);
 }
+
 .light-search .search-input::placeholder {
     color: rgba(0,0,0,0.3);
 }
+
 .light-search .search-icon {
     stroke: var(--text-dark);
 }
 
-/* Submenu Lists (Light) */
+/* ========================================
+   Submenu Lists
+   ======================================== */
 .submenu-list {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 15px;
+    gap: 20px;
 }
+
 .submenu-item {
-    font-size: 36px;
+    font-size: 42px;
     font-weight: 300;
     text-transform: uppercase;
     cursor: pointer;
-    transition: opacity 0.2s;
-}
-.submenu-item:hover {
-    opacity: 0.6;
+    transition: opacity 0.2s, letter-spacing 0.3s;
 }
 
-/* Track List */
+.submenu-item:hover {
+    opacity: 0.6;
+    letter-spacing: 3px;
+}
+
+/* ========================================
+   Track List
+   ======================================== */
 .track-list {
-    padding: 0 20px 40px;
+    padding: 0 40px 60px;
     display: flex;
     flex-direction: column;
-    gap: 30px;
-    max-width: 600px;
+    gap: 35px;
+    max-width: 800px;
     margin: 0 auto;
     width: 100%;
 }
+
 .track-item {
     border-bottom: 1px solid var(--text-dark);
-    padding-bottom: 15px;
+    padding-bottom: 20px;
 }
+
 .track-title {
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 700;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
 }
+
 .track-desc {
-    font-size: 14px;
+    font-size: 16px;
     color: var(--text-muted);
     margin-bottom: 25px;
+    line-height: 1.5;
 }
+
 .track-controls {
     display: flex;
     align-items: center;
     gap: 15px;
     justify-content: flex-end;
 }
+
 .track-time {
-    font-size: 14px;
+    font-size: 16px;
     margin-right: 15px;
     font-weight: 400;
 }
+
 .icon-btn {
     cursor: pointer;
     background: none;
     border: none;
+    transition: transform 0.2s;
 }
+
+.icon-btn:hover {
+    transform: scale(1.15);
+}
+
 .icon-btn svg {
     width: 36px; height: 36px;
     fill: none;
@@ -330,35 +376,49 @@ body {
     stroke-width: 1.5;
 }
 
-/* Video List */
+/* ========================================
+   Video List
+   ======================================== */
 .video-list {
-    padding: 0 20px 40px;
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-    max-width: 600px;
+    padding: 0 40px 60px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 35px;
+    max-width: 1200px;
     margin: 0 auto;
     width: 100%;
 }
+
 .video-item {
     display: flex;
-    gap: 15px;
-    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
 }
+
 .video-thumb {
-    width: 200px;
-    height: 110px;
+    width: 100%;
+    height: 0;
+    padding-bottom: 56.25%; /* 16:9 */
     background: #ccc;
     border-radius: 12px;
     position: relative;
     overflow: hidden;
-    flex-shrink: 0;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+    transition: transform 0.3s, box-shadow 0.3s;
 }
+
+.video-thumb:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+}
+
 .video-thumb img {
+    position: absolute;
+    top: 0; left: 0;
     width: 100%; height: 100%;
     object-fit: cover;
 }
+
 .video-overlay {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -367,144 +427,186 @@ body {
     justify-content: center;
     align-items: center;
     color: rgba(255,255,255,0.7);
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 300;
     letter-spacing: 2px;
 }
+
 .video-time {
     position: absolute;
-    bottom: 8px; left: 8px;
+    bottom: 10px; left: 10px;
     background: rgba(0,0,0,0.7);
     color: #fff;
-    font-size: 12px;
-    padding: 2px 6px;
+    font-size: 13px;
+    padding: 3px 8px;
     border-radius: 4px;
 }
+
 .video-info {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding-top: 10px;
-}
-.video-title {
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 1.4;
+    padding: 5px 0;
 }
 
-/* Text Article List */
+.video-title {
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.5;
+}
+
+/* ========================================
+   Text Article List
+   ======================================== */
 .article-list {
-    padding: 0 20px 40px;
+    padding: 0 40px 60px;
     display: flex;
     flex-direction: column;
     gap: 50px;
-    max-width: 600px;
+    max-width: 800px;
     margin: 0 auto;
     width: 100%;
 }
+
 .article-item {
     border-bottom: 1px solid rgba(0,0,0,0.2);
-    padding-bottom: 20px;
+    padding-bottom: 25px;
 }
+
 .article-title {
-    font-size: 20px;
+    font-size: 24px;
     font-weight: 700;
-    margin-bottom: 15px;
+    margin-bottom: 18px;
 }
+
 .article-text {
-    font-size: 14px;
-    line-height: 1.6;
+    font-size: 16px;
+    line-height: 1.7;
     white-space: pre-line;
     margin-bottom: 30px;
 }
+
 .article-controls {
     display: flex;
     justify-content: center;
 }
 
-/* Image Grids */
+/* ========================================
+   Image Grids
+   ======================================== */
 .photo-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    padding: 0 20px 40px;
-    max-width: 600px;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+    padding: 0 40px 60px;
+    max-width: 1200px;
     margin: 0 auto;
 }
+
 .photo-item {
     width: 100%;
     aspect-ratio: 3/4;
     background: #ccc;
     object-fit: cover;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-radius: 4px;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.photo-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.18);
 }
 
 .cards-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 0 20px 40px;
-    max-width: 400px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    padding: 0 40px 60px;
+    max-width: 1200px;
     margin: 0 auto;
 }
+
 .card-item {
     width: 100%;
     height: auto;
     background: #ccc;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-radius: 4px;
+    transition: transform 0.3s, box-shadow 0.3s;
 }
+
+.card-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.18);
+}
+
 .card-item img {
     width: 100%;
     height: auto;
     display: block;
 }
 
-/* Login/Reg Form */
+/* ========================================
+   Login / Registration Form
+   ======================================== */
 .form-container {
     padding: 0 40px 40px;
-    max-width: 400px;
-    margin: 50px auto 0;
+    max-width: 450px;
+    margin: 60px auto 0;
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: stretch;
     gap: 40px;
 }
+
 .form-input {
     border: none;
     border-bottom: 1px solid rgba(0,0,0,0.3);
     background: transparent;
-    padding: 10px 5px;
-    font-size: 14px;
+    padding: 12px 5px;
+    font-size: 16px;
     font-family: var(--font-family);
     outline: none;
 }
+
 .form-options {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 11px;
+    font-size: 13px;
     color: var(--text-muted);
     margin-top: -20px;
 }
+
 .form-checkbox {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
 }
+
 .form-btn {
     background: transparent;
     border: none;
-    font-size: 24px;
+    font-size: 28px;
     font-family: var(--font-family);
     font-weight: 300;
     cursor: pointer;
     margin-top: 20px;
+    transition: opacity 0.2s;
 }
+
+.form-btn:hover {
+    opacity: 0.6;
+}
+
 .form-link {
     text-align: center;
-    font-size: 12px;
+    font-size: 14px;
     color: var(--text-muted);
     cursor: pointer;
     text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+.form-link:hover {
+    opacity: 0.6;
 }
