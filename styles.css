@@ -16,7 +16,7 @@
 body {
     font-family: var(--font-family);
     overflow: hidden;
-    background-color: #000;
+    background-color: var(--bg-light);
     user-select: none;
 }
 
@@ -29,33 +29,37 @@ body {
     background-position: center center;
     background-size: cover;
     background-repeat: no-repeat;
-    transition: transform 1s cubic-bezier(0.7, 0, 0.3, 1), opacity 0.5s ease;
-    transform-origin: 50% 100%;
+    transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.8s ease 0.3s,
+                filter 1s ease;
+    transform-origin: 50% 50%;
     overflow: hidden;
 }
 
+/* Fog overlay that sweeps in during transition */
 .app-bg::after {
     content: '';
     position: absolute;
-    bottom: -10vh; left: 50%;
-    transform: translateX(-50%) scale(0.1);
-    width: 30vw;
-    height: 30vw;
-    background: var(--bg-light);
-    border-radius: 50%;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(
+        to top,
+        rgba(235, 234, 232, 0) 0%,
+        rgba(235, 234, 232, 0.6) 40%,
+        rgba(235, 234, 232, 1) 100%
+    );
     opacity: 0;
-    transition: transform 0.9s cubic-bezier(0.7, 0, 0.3, 1), opacity 0.3s ease;
-    transform-origin: center center;
+    transition: opacity 0.8s ease;
     pointer-events: none;
 }
 
 .app-bg.zoom-in {
-    transform: scale(1.15);
+    transform: translateY(-40vh) scale(1.15);
+    filter: blur(12px);
+    opacity: 0;
 }
 
 .app-bg.zoom-in::after {
     opacity: 1;
-    transform: translateX(-50%) scale(20);
 }
 
 .app-bg.blurred {
@@ -106,7 +110,7 @@ body {
     max-width: 400px;
     mix-blend-mode: screen;
     opacity: 0.9;
-    transform: translateY(-10vh);
+    transform: translateY(-25vh);
 }
 
 .logo-part {
