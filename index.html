@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4:33</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=3">
+</head>
+<body>
+
+<div class="app-container">
+    <div class="app-bg"></div>
+
+    <!-- 1. HOME SCREEN -->
+    <div id="screen-home" class="screen" data-target="screen-menu">
+        <div class="logo-433-wrapper">
+            <img src="logo433.png" class="logo-part logo-left" alt="">
+            <img src="logo433.png" class="logo-part logo-right" alt="">
+            <img src="logo433.png" class="logo-part logo-colon blink" alt="4:33">
+        </div>
+    </div>
+
+    <!-- 2. MAIN MENU -->
+    <div id="screen-menu" class="screen">
+        <div class="search-box-wrapper">
+            <svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" class="search-input" placeholder="ПОИСК">
+        </div>
+        
+        <div class="menu-list">
+            <div class="menu-item" data-target="screen-listen">СЛУШАТЬ</div>
+            <div class="menu-item" data-target="screen-watch">СМОТРЕТЬ</div>
+            <div class="menu-item" data-target="screen-read">ЧИТАТЬ</div>
+            <div class="menu-item" data-target="screen-learn">УЧИТЬ</div>
+            <div class="menu-item" data-target="screen-ideas">ИДЕИ</div>
+            <div class="menu-item" data-target="screen-login">ВОЙТИ</div>
+        </div>
+
+        <div class="menu-bottom-arrow">
+            <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+        <img src="logo.png" class="menu-logo-img" alt="Лого">
+    </div>
+
+    <!-- ============================================== -->
+    <!-- СЛУШАТЬ СЕКЦИЯ -->
+    <!-- ============================================== -->
+
+    <div id="screen-listen" class="screen screen-light">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()">
+                <svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5" /><path d="M4 9h10.5A5.5 5.5 0 0 1 20 14.5v0A5.5 5.5 0 0 1 14.5 20H11" /></svg>
+            </button>
+            <div class="header-title">СЛУШАТЬ</div>
+        </div>
+        <div class="search-box-wrapper light-search">
+            <svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" class="search-input" placeholder="ПОИСК">
+        </div>
+        <div class="submenu-list">
+            <div class="submenu-item" data-target="screen-listen-tales">СКАЗКИ</div>
+            <div class="submenu-item" data-target="screen-listen-music">МУЗЫКА</div>
+            <div class="submenu-item" data-target="screen-listen-poems">СТИХИ</div>
+        </div>
+    </div>
+
+    <!-- СКАЗКИ -->
+    <div id="screen-listen-tales" class="screen screen-light">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5" /><path d="M4 9h10.5A5.5 5.5 0 0 1 20 14.5v0A5.5 5.5 0 0 1 14.5 20H11" /></svg></button>
+            <div class="header-title">СКАЗКИ</div>
+        </div>
+        <div class="search-box-wrapper light-search"><svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><input type="text" class="search-input" placeholder="ПОИСК"></div>
+        <div class="track-list">
+            <div class="track-item">
+                <div class="track-title">Реплика №1</div>
+                <div class="track-desc">Не всегда события разворачиваются так, как нас хотелось и мечта рушится на наших глазах.</div>
+                <div class="track-controls">
+                    <div class="track-time">03:22</div>
+                    <button class="icon-btn"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
+                    <button class="icon-btn"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button>
+                </div>
+            </div>
+            <div class="track-item">
+                <div class="track-title">Реплика №2</div>
+                <div class="track-desc">Не всегда события разворачиваются так, как нас хотелось и мечта рушится на наших глазах.</div>
+                <div class="track-controls">
+                    <div class="track-time">03:22</div>
+                    <button class="icon-btn"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
+                    <button class="icon-btn"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- МУЗЫКА -->
+    <div id="screen-listen-music" class="screen screen-light">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5" /><path d="M4 9h10.5A5.5 5.5 0 0 1 20 14.5v0A5.5 5.5 0 0 1 14.5 20H11" /></svg></button>
+            <div class="header-title">МУЗЫКА</div>
+        </div>
+        <div class="search-box-wrapper light-search"><svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><input type="text" class="search-input" placeholder="ПОИСК"></div>
+        <div class="track-list">
+            <div class="track-item">
+                <div class="track-title">ЮШКА</div>
+                <div class="track-desc">Не хмельным и не искусством...</div>
+                <div class="track-controls">
+                    <div class="track-time">03:22</div>
+                    <button class="icon-btn"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
+                    <button class="icon-btn"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button>
+                </div>
+            </div>
+            <div class="track-item">
+                <div class="track-title">Нас не лечит</div>
+                <div class="track-desc">Я богата, чертовски богата...</div>
+                <div class="track-controls">
+                    <div class="track-time">03:22</div>
+                    <button class="icon-btn"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
+                    <button class="icon-btn"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- СТИХИ (АУДИО) -->
+    <div id="screen-listen-poems" class="screen screen-light">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5" /><path d="M4 9h10.5A5.5 5.5 0 0 1 20 14.5v0A5.5 5.5 0 0 1 14.5 20H11" /></svg></button>
+            <div class="header-title">СТИХИ</div>
+        </div>
+        <div class="search-box-wrapper light-search"><svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><input type="text" class="search-input" placeholder="ПОИСК"></div>
+        <div class="track-list">
+            <div class="track-item">
+                <div class="track-title">ЮШКА</div>
+                <div class="track-desc">Не хмельным и не искусством...</div>
+                <div class="track-controls">
+                    <div class="track-time">03:22</div>
+                    <button class="icon-btn"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
+                    <button class="icon-btn"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button>
+                </div>
+            </div>
+            <div class="track-item">
+                <div class="track-title">Нас не лечит</div>
+                <div class="track-desc">Я богата, чертовски богата...</div>
+                <div class="track-controls">
+                    <div class="track-time">03:22</div>
+                    <button class="icon-btn"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
+                    <button class="icon-btn"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ============================================== -->
+    <!-- СМОТРЕТЬ СЕКЦИЯ -->
+    <!-- ============================================== -->
+
+    <div id="screen-watch" class="screen screen-light">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5" /><path d="M4 9h10.5A5.5 5.5 0 0 1 20 14.5v0A5.5 5.5 0 0 1 14.5 20H11" /></svg></button>
+            <div class="header-title">СМОТРЕТЬ</div>
+        </div>
+        <div class="search-box-wrapper light-search"><svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><input type="text" class="search-input" placeholder="ПОИСК"></div>
+        <div class="submenu-list">
+            <div class="submenu-item" data-target="screen-watch-clips">КЛИПЫ</div>
+            <div class="submenu-item" data-target="screen-watch-docs">ДОКФИЛЬМ</div>
+            <div class="submenu-item" data-target="screen-watch-vids">РОЛИКИ</div>
+            <div class="submenu-item" data-target="screen-watch-works">РАБОТЫ</div>
+        </div>
+    </div>
+
+    <!-- КЛИПЫ / ДОКФИЛЬМ / РОЛИКИ (одинаковый шаблон) -->
+    <div id="screen-watch-clips" class="screen screen-light">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5" /><path d="M4 9h10.5A5.5 5.5 0 0 1 20 14.5v0A5.5 5.5 0 0 1 14.5 20H11" /></svg></button>
+            <div class="header-title">КЛИПЫ</div>
+        </div>
+        <div class="search-box-wrapper light-search"><svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><input type="text" class="search-input" placeholder="ПОИСК"></div>
+        <div class="video-list">
+            <!-- Item 1 -->
+            <div class="video-item">
+                <div class="video-thumb" style="background: linear-gradient(135deg, #1c1c1c 0%, #3a3a3a 100%);">
+                    <div class="video-overlay" style="color: #ff6b6b;">БЕСЫ ПЛЯШУТ</div>
+                    <div class="video-time">2:50</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">Бесы пляшут<br>— original song<br>@ToryKane</div>
+                </div>
+            </div>
+            <!-- Item 2 -->
+            <div class="video-item">
+                <div class="video-thumb" style="background: linear-gradient(135deg, #1c1c1c 0%, #3a3a3a 100%);">
+                    <div class="video-overlay" style="color: #ff6b6b;">БЕСЫ ПЛЯШУТ</div>
+                    <div class="video-time">2:50</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">Бесы пляшут<br>— original song<br>@ToryKane</div>
+                </div>
+            </div>
+            <!-- Item 3 -->
+            <div class="video-item">
+                <div class="video-thumb" style="background: linear-gradient(135deg, #1c1c1c 0%, #3a3a3a 100%);">
+                    <div class="video-overlay" style="color: #ff6b6b;">БЕСЫ ПЛЯШУТ</div>
+                    <div class="video-time">2:50</div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">Бесы пляшут<br>— original song<br>@ToryKane</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ДОКФИЛЬМ -->
+    <div id="screen-watch-docs" class="screen screen-light">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5" /><path d="M4 9h10.5A5.5 5.5 0 0 1 20 14.5v0A5.5 5.5 0 0 1 14.5 20H11" /></svg></button>
+            <div class="header-title">ДОКФИЛЬМ</div>
+        </div>
+        <div class="search-box-wrapper light-search"><svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><input type="text" class="search-input" placeholder="ПОИСК"></div>
+        <div class="video-list">
+            <!-- Copy of video items for demo -->
+            <div class="video-item">
+                <div class="video-thumb" style="background: linear-gradient(135deg, #1c1c1c 0%, #3a3a3a 100%);">
+                    <div class="video-overlay" style="color: #ff6b6b;">БЕСЫ ПЛЯШУТ</div><div class="video-time">2:50</div>
+                </div>
+                <div class="video-info"><div class="video-title">Бесы пляшут<br>— original song<br>@ToryKane</div></div>
+            </div>
+            <div class="video-item">
+                <div class="video-thumb" style="background: linear-gradient(135deg, #1c1c1c 0%, #3a3a3a 100%);">
+                    <div class="video-overlay" style="color: #ff6b6b;">БЕСЫ ПЛЯШУТ</div><div class="video-time">2:50</div>
+                </div>
+                <div class="video-info"><div class="video-title">Бесы пляшут<br>— original song<br>@ToryKane</div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- РОЛИКИ -->
+    <div id="screen-watch-vids" class="screen screen-light">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5" /><path d="M4 9h10.5A5.5 5.5 0 0 1 20 14.5v0A5.5 5.5 0 0 1 14.5 20H11" /></svg></button>
+            <div class="header-title">РОЛИКИ</div>
+        </div>
+        <div class="search-box-wrapper light-search"><svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><input type="text" class="search-input" placeholder="ПОИСК"></div>
+        <div class="video-list">
+            <div class="video-item">
+                <div class="video-thumb" style="background: linear-gradient(135deg, #1c1c1c 0%, #3a3a3a 100%);">
+                    <div class="video-overlay" style="color: #ff6b6b;">БЕСЫ ПЛЯШУТ</div><div class="video-time">2:50</div>
+                </div>
+                <div class="video-info"><div class="video-title">Бесы пляшут<br>— original song<br>@ToryKane</div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- РАБОТЫ (Подменю для фото/картинок) -->
+    <div id="screen-watch-works" class="screen screen-light">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5" /><path d="M4 9h10.5A5.5 5.5 0 0 1 20 14.5v0A5.5 5.5 0 0 1 14.5 20H11" /></svg></button>
+            <div class="header-title">РАБОТЫ</div>
+        </div>
+        <div class="search-box-wrapper light-search"><svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><input type="text" class="search-input" placeholder="ПОИСК"></div>
+        <div class="submenu-list">
+            <div class="submenu-item" data-target="screen-watch-photo">ФОТО</div>
+            <div class="submenu-item" data-target="screen-watch-pics">КАРТИНКИ</div>
+        </div>
+    </div>
+
+    <!-- ФОТО -->
+    <div id="screen-watch-photo" class="screen screen-light">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5" /><path d="M4 9h10.5A5.5 5.5 0 0 1 20 14.5v0A5.5 5.5 0 0 1 14.5 20H11" /></svg></button>
+            <div class="header-title">ФОТО</div>
+        </div>
+        <div class="search-box-wrapper light-search"><svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><input type="text" class="search-input" placeholder="ПОИСК"></div>
+        <div class="photo-grid">
+            <div class="photo-item" style="background: linear-gradient(135deg, #0072ff 0%, #00c6ff 100%);"></div>
+            <div class="photo-item" style="background: linear-gradient(135deg, #0072ff 0%, #00c6ff 100%);"></div>
+            <div class="photo-item" style="background: linear-gradient(135deg, #0072ff 0%, #00c6ff 100%);"></div>
+            <div class="photo-item" style="background: linear-gradient(135deg, #0072ff 0%, #00c6ff 100%);"></div>
+        </div>
+    </div>
+
+    <!-- КАРТИНКИ -->
+    <div id="screen-watch-pics" class="screen screen-light">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5" /><path d="M4 9h10.5A5.5 5.5 0 0 1 20 14.5v0A5.5 5.5 0 0 1 14.5 20H11" /></svg></button>
+            <div class="header-title">КАРТИНКИ</div>
+        </div>
+        <div class="search-box-wrapper light-search"><svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><input type="text" class="search-input" placeholder="ПОИСК"></div>
+        <div class="cards-grid">
+            <div class="card-item" style="height: 300px; background: #ebd4cc; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; color: #7f665e;">La Muchacha</div>
+            <div class="card-item" style="height: 300px; background: #000; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; color: #fff; text-align: center;">Я СЕЙЧАС ВСЁ<br>ОБЪЯСНЮ</div>
+            <div class="card-item" style="height: 300px; background: #e0f2f1; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; color: #d84315; text-align: center;">ТАК ПОХОЖЕ<br>НА ДИАГНОЗ</div>
+        </div>
+    </div>
+
+
+    <!-- ============================================== -->
+    <!-- ЧИТАТЬ СЕКЦИЯ -->
+    <!-- ============================================== -->
+
+    <div id="screen-read" class="screen screen-light">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5" /><path d="M4 9h10.5A5.5 5.5 0 0 1 20 14.5v0A5.5 5.5 0 0 1 14.5 20H11" /></svg></button>
+            <div class="header-title">ЧИТАТЬ</div>
+        </div>
+        <div class="search-box-wrapper light-search"><svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><input type="text" class="search-input" placeholder="ПОИСК"></div>
+        <div class="submenu-list">
+            <div class="submenu-item" data-target="screen-read-poems">СТИХИ</div>
+            <div class="submenu-item" data-target="screen-read-prose">ПРОЗА</div>
+            <div class="submenu-item" data-target="screen-read-scripts">СЦЕНАРИИ</div>
+            <div class="submenu-item" data-target="screen-read-tales">СКАЗКИ</div>
+            <div class="submenu-item" data-target="screen-read-thoughts">МЫСЛИ</div>
+            <div class="submenu-item" data-target="screen-read-articles">СТАТЬИ</div>
+        </div>
+    </div>
+
+    <!-- ЧИТАТЬ - СТИХИ -->
+    <div id="screen-read-poems" class="screen screen-light">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5" /><path d="M4 9h10.5A5.5 5.5 0 0 1 20 14.5v0A5.5 5.5 0 0 1 14.5 20H11" /></svg></button>
+            <div class="header-title">СТИХИ</div>
+        </div>
+        <div class="search-box-wrapper light-search"><svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><input type="text" class="search-input" placeholder="ПОИСК"></div>
+        <div class="article-list">
+            <div class="article-item">
+                <div class="article-title">Маленькая свинья</div>
+                <div class="article-text">Перемазана яблоком морда,
+Телом тощая,
+Порвана майка.
+Распласталась на грязном полу.
+Да, из Ведьмы, не очень хозяйка.
+
+Не была же такой свиньёй,
+И нормальным росла ребёнком,
+И смеялась как все, что есть сил,
+Не осипшим, голосом звонким.
+А теперь ноги врозь, наплевать,
+Жопой голой на грязном полу.
+Раскидала учебников горсть,
+И глазами куда-то во мглу.
+Месяцами немытый пол
+И какие-то тряпки в углу.
+
+И какие-то мысли, как ноги,
+Врозь, красивые, тонкие, чистые,
+Непонятные никому,
+Только светлые,
+Только лучистые.
+
+И огрызки от яблок везде,
+Позасохли липкие лужи…
+А внутри бесконечный свет,
+Ну а грязь вся осталась снаружи.</div>
+                <div class="article-controls">
+                    <button class="icon-btn"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ЧИТАТЬ - ПРОЗА / СЦЕНАРИИ / СТАТЬИ (шаблон) -->
+    <div id="screen-read-prose" class="screen screen-light">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5" /><path d="M4 9h10.5A5.5 5.5 0 0 1 20 14.5v0A5.5 5.5 0 0 1 14.5 20H11" /></svg></button>
+            <div class="header-title">ПРОЗА</div>
+        </div>
+        <div class="search-box-wrapper light-search"><svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><input type="text" class="search-input" placeholder="ПОИСК"></div>
+        <div class="article-list">
+            <div class="article-item">
+                <div class="article-title">Лекция о брендинге и психотипах аудитории</div>
+                <div class="article-text">В мире маркетинга и дизайна брендинг давно перестал быть просто набором визуальных решений. Это глубокая работа с пониманием человеческой природы, эмпатии и тонкостей восприятия. На первый взгляд может показаться, что создание бренда — это в первую очередь про красивые картинки и запоминающиеся слоганы. Но за каждым удачным кейсом стоит кропотливый анализ аудитории, её ценностей и поведенческих паттернов.
+
+Ключ к успешному брендингу кроется в понимании того, кто будет взаимодействовать с продуктом. Дизайнеры и маркетологи, владеющие этим знанием, способны выстраивать коммуникации, которые резонируют с целевой аудиторией.</div>
+                <div class="article-controls">
+                    <button class="icon-btn"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="screen-read-scripts" class="screen screen-light">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5" /><path d="M4 9h10.5A5.5 5.5 0 0 1 20 14.5v0A5.5 5.5 0 0 1 14.5 20H11" /></svg></button>
+            <div class="header-title">СЦЕНАРИИ</div>
+        </div>
+        <div class="search-box-wrapper light-search"><svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><input type="text" class="search-input" placeholder="ПОИСК"></div>
+        <div class="article-list">
+            <div class="article-item">
+                <div class="article-title">Сценарий: Лекция о брендинге</div>
+                <div class="article-text">ИНТ. АУДИТОРИЯ - ДЕНЬ
+В мире маркетинга и дизайна брендинг давно перестал быть просто набором визуальных решений...</div>
+                <div class="article-controls">
+                    <button class="icon-btn"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ============================================== -->
+    <!-- УЧИТЬ СЕКЦИЯ -->
+    <!-- ============================================== -->
+
+    <div id="screen-learn" class="screen screen-light">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5" /><path d="M4 9h10.5A5.5 5.5 0 0 1 20 14.5v0A5.5 5.5 0 0 1 14.5 20H11" /></svg></button>
+            <div class="header-title">УЧИТЬ</div>
+        </div>
+        <div class="search-box-wrapper light-search"><svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><input type="text" class="search-input" placeholder="ПОИСК"></div>
+        <div class="submenu-list">
+            <div class="submenu-item" data-target="screen-learn-guides">ГАЙДЫ</div>
+            <div class="submenu-item" data-target="screen-learn-articles">СТАТЬИ</div>
+        </div>
+    </div>
+
+    <!-- УЧИТЬ - ГАЙДЫ -->
+    <div id="screen-learn-guides" class="screen screen-light">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5" /><path d="M4 9h10.5A5.5 5.5 0 0 1 20 14.5v0A5.5 5.5 0 0 1 14.5 20H11" /></svg></button>
+            <div class="header-title">ГАЙДЫ</div>
+        </div>
+        <div class="search-box-wrapper light-search"><svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><input type="text" class="search-input" placeholder="ПОИСК"></div>
+        <div class="article-list">
+            <div class="article-item">
+                <div class="article-title">Лекция о брендинге и психотипах аудитории</div>
+                <div class="article-text">В мире маркетинга и дизайна брендинг давно перестал быть просто набором визуальных решений...</div>
+                <div class="article-controls">
+                    <button class="icon-btn"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ============================================== -->
+    <!-- ИДЕИ СЕКЦИЯ -->
+    <!-- ============================================== -->
+
+    <div id="screen-ideas" class="screen screen-light">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5" /><path d="M4 9h10.5A5.5 5.5 0 0 1 20 14.5v0A5.5 5.5 0 0 1 14.5 20H11" /></svg></button>
+            <div class="header-title">ИДЕИ</div>
+        </div>
+        <div class="search-box-wrapper light-search"><svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><input type="text" class="search-input" placeholder="ПОИСК"></div>
+        <div class="article-list">
+            <div class="article-item">
+                <div class="article-title">Лекция о брендинге и психотипах аудитории</div>
+                <div class="article-text">В мире маркетинга и дизайна брендинг давно перестал быть просто набором визуальных решений. Это глубокая работа с пониманием человеческой природы, эмпатии и тонкостей восприятия. На первый взгляд может показаться, что создание бренда — это в первую очередь про красивые картинки и запоминающиеся слоганы. Но за каждым удачным кейсом стоит кропотливый анализ аудитории, её ценностей и поведенческих паттернов.
+
+Ключ к успешному брендингу кроется в понимании того, кто будет взаимодействовать с продуктом. Дизайнеры и маркетологи, владеющие этим знанием, способны выстраивать коммуникации, которые резонируют с целевой аудиторией.</div>
+                <div class="article-controls">
+                    <button class="icon-btn"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ============================================== -->
+    <!-- ВОЙТИ СЕКЦИЯ -->
+    <!-- ============================================== -->
+
+    <div id="screen-login" class="screen screen-light">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5" /><path d="M4 9h10.5A5.5 5.5 0 0 1 20 14.5v0A5.5 5.5 0 0 1 14.5 20H11" /></svg></button>
+            <div class="header-title">ВОЙТИ</div>
+        </div>
+        <div class="form-container">
+            <input type="email" class="form-input" placeholder="Почта">
+            <input type="password" class="form-input" placeholder="Пароль">
+            <div class="form-options">
+                <label class="form-checkbox">
+                    <input type="checkbox"> Запомнить меня
+                </label>
+                <a href="#" class="form-link">Забыли пароль?</a>
+            </div>
+            <button class="form-btn">Вход</button>
+            <div class="form-link" data-target="screen-register" onclick="navigate('screen-register')">Создать аккаунт</div>
+        </div>
+    </div>
+
+    <!-- РЕГИСТРАЦИЯ -->
+    <div id="screen-register" class="screen screen-light">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5" /><path d="M4 9h10.5A5.5 5.5 0 0 1 20 14.5v0A5.5 5.5 0 0 1 14.5 20H11" /></svg></button>
+            <div class="header-title" style="font-size: 32px;">РЕГИСТРАЦИЯ</div>
+        </div>
+        <div class="form-container">
+            <input type="text" class="form-input" placeholder="Имя">
+            <input type="email" class="form-input" placeholder="Почта">
+            <input type="password" class="form-input" placeholder="Пароль">
+            <button class="form-btn" style="margin-top: 40px;">Создать</button>
+        </div>
+    </div>
+
+
+</div> <!-- end app-container -->
+
+<script src="app.js"></script>
+</body>
+</html>
