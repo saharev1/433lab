@@ -620,9 +620,15 @@ body {
    ======================================== */
 @media (max-width: 768px) {
 
-    /* Menu: same style as desktop, just smaller fonts */
+    /* Pin road to top so white stripe fills the bottom */
+    .app-bg {
+        background-position: center top;
+    }
+
+    /* Menu: black text in the lower white area of the road */
     #screen-menu {
-        justify-content: center;
+        justify-content: flex-end;
+        padding-bottom: 12vh;
         color: var(--text-dark);
     }
 
