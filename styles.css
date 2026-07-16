@@ -620,16 +620,23 @@ body {
    ======================================== */
 @media (max-width: 768px) {
 
-    /* Scale road image to fill full height — asphalt dominates like the prototype */
-    .app-bg {
-        background-position: center top;
-        background-size: auto 100vh;
+    /* Menu: white text, positioned in upper half above the road */
+    #screen-menu {
+        justify-content: flex-start;
+        padding-top: 12vh;
+        color: var(--text-light);
     }
 
-    /* Menu: centered on the white asphalt area */
-    #screen-menu {
-        justify-content: center;
-        color: var(--text-dark);
+    /* Search bar adapts to white text on dark bg */
+    #screen-menu .search-input {
+        border-bottom: 1px solid rgba(255,255,255,0.5);
+        color: var(--text-light);
+    }
+    #screen-menu .search-input::placeholder {
+        color: rgba(255,255,255,0.5);
+    }
+    #screen-menu .search-icon {
+        stroke: var(--text-light);
     }
 
     .search-box-wrapper {
@@ -639,13 +646,18 @@ body {
     /* Smaller menu items */
     .menu-item {
         font-size: 28px;
+        gap: 18px;
     }
     .menu-list {
         gap: 18px;
     }
 
-    /* Logo stays with multiply blend */
+    /* Bottom arrow & logo white */
+    .menu-bottom-arrow svg {
+        stroke: var(--text-light);
+    }
     .menu-logo-img {
+        mix-blend-mode: screen; /* Invert blend for dark bg */
         width: 60px;
         bottom: 25px;
         right: 25px;
