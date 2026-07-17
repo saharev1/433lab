@@ -110,7 +110,7 @@
         return '<div class="video-item" data-media-id="' + item.id + '">' +
             '<div class="video-thumb video-thumb-player">' +
             (item.type === 'video'
-                ? '<video controls preload="metadata" src="' + esc(item.url) + '"></video>'
+                ? '<video controls preload="metadata" src="' + esc(item.url) + '#t=0.001"></video>'
                 : '<img src="' + esc(item.url) + '" alt="">') +
             '</div>' +
             '<div class="video-info"><div class="video-title">' + esc(item.title) + '</div>' +
