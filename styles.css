@@ -53,7 +53,7 @@ body {
 }
 
 .app-bg.zoom-in {
-    transform: translateY(100vh);
+    transform: translateY(-100vh);
     filter: blur(12px);
     opacity: 0;
 }
