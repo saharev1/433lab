@@ -75,6 +75,23 @@
             '<span class="like-count">' + (item.likeCount || '') + '</span></button>';
     }
 
+    // Кэш данных медиа для форм редактирования
+    const mediaCache = {};
+
+    function isAdmin() {
+        const u = getUser();
+        return !!(u && getToken() && u.role === 'admin');
+    }
+
+    function adminBtns(item) {
+        if (!isAdmin()) return '';
+        return '<button class="icon-btn js-edit" data-id="' + item.id + '" title="Редактировать">' +
+            '<svg viewBox="0 0 24 24"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg></button>' +
+            '<button class="icon-btn js-delete" data-id="' + item.id + '" title="Удалить">' +
+            '<svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline>' +
+            '<path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>';
+    }
+
     function commentBtn(item) {
         return '<button class="icon-btn js-comments-toggle" data-id="' + item.id + '">' +
             '<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>' +
@@ -97,16 +114,18 @@
     }
 
     function renderTrack(item) {
+        mediaCache[item.id] = item;
         return '<div class="track-item" data-media-id="' + item.id + '">' +
             '<div class="track-title">' + esc(item.title) + '</div>' +
             '<div class="track-desc">' + esc(item.description) + '</div>' +
             (item.type === 'audio' || item.type === 'video'
                 ? '<audio class="media-audio" controls preload="none" src="' + esc(item.url) + '"></audio>' : '') +
-            '<div class="track-controls">' + heartBtn(item) + commentBtn(item) + '</div>' +
+            '<div class="track-controls">' + heartBtn(item) + commentBtn(item) + adminBtns(item) + '</div>' +
             commentsBlock(item) + '</div>';
     }
 
     function renderVideo(item) {
+        mediaCache[item.id] = item;
         return '<div class="video-item" data-media-id="' + item.id + '">' +
             '<div class="video-thumb video-thumb-player">' +
             (item.type === 'video'
@@ -114,15 +133,77 @@
                 : '<img src="' + esc(item.url) + '" alt="">') +
             '</div>' +
             '<div class="video-info"><div class="video-title">' + esc(item.title) + '</div>' +
-            '<div class="video-actions">' + heartBtn(item) + commentBtn(item) + '</div></div>' +
+            '<div class="video-actions">' + heartBtn(item) + commentBtn(item) + adminBtns(item) + '</div></div>' +
             commentsBlock(item) + '</div>';
     }
 
     function renderPhoto(item) {
+        mediaCache[item.id] = item;
         return '<div class="photo-item photo-item-real" data-media-id="' + item.id + '" ' +
             'style="background-image:url(\'' + esc(item.url) + '\')">' +
-            '<div class="photo-actions">' + heartBtn(item) + '</div>' +
+            '<div class="photo-actions">' + heartBtn(item) + adminBtns(item) + '</div>' +
             '</div>';
+    }
+
+    // ---------- админ: редактирование и удаление ----------
+
+    function sectionOptions(selected) {
+        return Object.keys(SECTION_TITLES).map(key =>
+            '<option value="' + key + '"' + (key === selected ? ' selected' : '') + '>' +
+            SECTION_TITLES[key] + '</option>').join('');
+    }
+
+    function closeEditForm() {
+        document.querySelectorAll('.edit-block').forEach(el => el.remove());
+    }
+
+    function openEditForm(holder, item) {
+        closeEditForm();
+        const form = document.createElement('div');
+        form.className = 'edit-block';
+        form.innerHTML =
+            '<input type="text" class="comment-input edit-title" value="' + esc(item.title) + '" placeholder="Название">' +
+            '<input type="text" class="comment-input edit-desc" value="' + esc(item.description) + '" placeholder="Описание">' +
+            '<select class="comment-input edit-section">' + sectionOptions(item.section) + '</select>' +
+            '<div class="edit-actions">' +
+            '<button class="comment-send js-edit-save" data-id="' + item.id + '">Сохранить</button>' +
+            '<button class="comment-send edit-cancel js-edit-cancel">Отмена</button>' +
+            '</div>';
+        holder.appendChild(form);
+    }
+
+    async function saveEdit(saveBtn) {
+        const form = saveBtn.closest('.edit-block');
+        const id = saveBtn.dataset.id;
+        const body = {
+            title: form.querySelector('.edit-title').value,
+            description: form.querySelector('.edit-desc').value,
+            section: form.querySelector('.edit-section').value
+        };
+        const data = await api('/api/media/' + id, { method: 'PATCH', body });
+        mediaCache[id] = data.media;
+        const holder = form.closest('[data-media-id]');
+        closeEditForm();
+        const titleEl = holder.querySelector('.track-title, .video-title');
+        if (titleEl) titleEl.textContent = data.media.title;
+        const descEl = holder.querySelector('.track-desc');
+        if (descEl) descEl.textContent = data.media.description;
+        // если раздел сменился — убираем элемент из текущего списка
+        const screen = holder.closest('.screen');
+        if (screen && screen.id !== 'screen-favorites' &&
+            screen.id.replace(/^screen-/, '') !== data.media.section) {
+            holder.remove();
+        }
+    }
+
+    async function deleteMedia(delBtn) {
+        const id = delBtn.dataset.id;
+        const item = mediaCache[id];
+        if (!confirm('Удалить «' + (item ? item.title : '#' + id) + '»? Файл будет удалён с сервера.')) return;
+        await api('/api/media/' + id, { method: 'DELETE' });
+        const holder = delBtn.closest('[data-media-id]');
+        if (holder) holder.remove();
+        delete mediaCache[id];
     }
 
     async function loadSection(screenId) {
@@ -229,6 +310,35 @@
                 list.insertAdjacentHTML('beforeend',
                     '<div class="comment-item"><b>' + esc(data.comment.author) + ':</b> ' + esc(data.comment.text) + '</div>');
             } catch (err) { alert(err.message); }
+            return;
+        }
+
+        const editBtn = e.target.closest('.js-edit');
+        if (editBtn) {
+            e.stopPropagation();
+            const holder = editBtn.closest('[data-media-id]');
+            const item = mediaCache[editBtn.dataset.id];
+            if (holder && item) openEditForm(holder, item);
+            return;
+        }
+
+        const saveBtn = e.target.closest('.js-edit-save');
+        if (saveBtn) {
+            e.stopPropagation();
+            try { await saveEdit(saveBtn); } catch (err) { alert(err.message); }
+            return;
+        }
+
+        if (e.target.closest('.js-edit-cancel')) {
+            e.stopPropagation();
+            closeEditForm();
+            return;
+        }
+
+        const delBtn = e.target.closest('.js-delete');
+        if (delBtn) {
+            e.stopPropagation();
+            try { await deleteMedia(delBtn); } catch (err) { alert(err.message); }
         }
     });
 

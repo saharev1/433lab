@@ -172,6 +172,20 @@ app.get('/api/media/:section', auth(false), (req, res) => {
     res.json({ media: rows.map(r => mediaWithMeta(r, req.user ? req.user.id : null)) });
 });
 
+app.patch('/api/media/:id', auth(), adminOnly, (req, res) => {
+    const row = db.prepare('SELECT * FROM media WHERE id = ?').get(req.params.id);
+    if (!row) return res.status(404).json({ error: 'Медиа не найдено' });
+    const { title, description, section } = req.body || {};
+    const newTitle = title !== undefined ? String(title).trim() : row.title;
+    if (!newTitle) return res.status(400).json({ error: 'Название не может быть пустым' });
+    const newDesc = description !== undefined ? String(description).trim() : row.description;
+    const newSection = section !== undefined && String(section).trim() ? String(section).trim() : row.section;
+    db.prepare('UPDATE media SET title = ?, description = ?, section = ? WHERE id = ?')
+        .run(newTitle, newDesc, newSection, row.id);
+    const updated = db.prepare('SELECT * FROM media WHERE id = ?').get(row.id);
+    res.json({ media: mediaWithMeta(updated, req.user.id) });
+});
+
 app.delete('/api/media/:id', auth(), adminOnly, (req, res) => {
     const row = db.prepare('SELECT * FROM media WHERE id = ?').get(req.params.id);
     if (!row) return res.status(404).json({ error: 'Медиа не найдено' });
