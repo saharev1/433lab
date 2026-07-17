@@ -114,13 +114,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 bg.classList.remove('hidden');
                 bg.classList.remove('zoom-in');
             }
-            
-            // Mobile: slide road down when entering menu
-            if (window.innerWidth <= 768 && targetId === 'screen-menu') {
-                bg.classList.add('slide-down');
-            } else {
-                bg.classList.remove('slide-down');
-            }
         }
     }
 

@@ -53,7 +53,7 @@ body {
 }
 
 .app-bg.zoom-in {
-    transform: translateY(-40vh) scale(1.15);
+    transform: translateY(40vh) scale(1.15);
     filter: blur(12px);
     opacity: 0;
 }
@@ -148,6 +148,17 @@ body {
     justify-content: center;
     align-items: center;
     color: var(--text-dark);
+}
+
+.menu-logo-img {
+    display: none;
+}
+
+.menu-433-topleft {
+    position: absolute;
+    top: 40px;
+    left: 40px;
+    width: 120px;
 }
 
 .search-box-wrapper {
@@ -620,23 +631,10 @@ body {
    ======================================== */
 @media (max-width: 768px) {
 
-    /* Menu: black text, positioned in upper half above the road */
+    /* Menu: positioned in upper half */
     #screen-menu {
         justify-content: flex-start;
         padding-top: 12vh;
-        color: var(--text-dark);
-    }
-
-    /* Search bar adapts to black text on white bg */
-    #screen-menu .search-input {
-        border-bottom: 1px solid rgba(0,0,0,0.5);
-        color: var(--text-dark);
-    }
-    #screen-menu .search-input::placeholder {
-        color: rgba(0,0,0,0.5);
-    }
-    #screen-menu .search-icon {
-        stroke: var(--text-dark);
     }
 
     .search-box-wrapper {
@@ -651,29 +649,11 @@ body {
     .menu-list {
         gap: 18px;
     }
-
-    /* Bottom arrow & logo black */
-    .menu-bottom-arrow svg {
-        stroke: var(--text-dark);
-    }
     
-    .menu-logo-img {
-        display: none;
-    }
-    
-    .menu-433-mobile {
-        display: block !important;
-        position: absolute;
+    .menu-433-topleft {
         top: 25px;
         left: 20px;
         width: 70px;
-        transform: none; /* override home logo */
-    }
-    
-    /* App bg slides down on mobile menu */
-    .app-bg.slide-down {
-        transform: translateY(100vh);
-        opacity: 0;
     }
 
     /* Submenu items smaller */
