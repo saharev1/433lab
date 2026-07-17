@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>4:33</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=4">
+    <link rel="stylesheet" href="styles.css?v=5">
 </head>
 
 <body>
@@ -19,9 +19,9 @@
         <!-- 1. HOME SCREEN -->
         <div id="screen-home" class="screen" data-target="screen-menu">
             <div class="logo-433-wrapper">
-                <img src="logo433.png" class="logo-part logo-left" alt="">
-                <img src="logo433.png" class="logo-part logo-right" alt="">
-                <img src="logo433.png" class="logo-part logo-colon blink" alt="4:33">
+                <img src="assets/logo433.png" class="logo-part logo-left" alt="">
+                <img src="assets/logo433.png" class="logo-part logo-right" alt="">
+                <img src="assets/logo433.png" class="logo-part logo-colon blink" alt="4:33">
             </div>
         </div>
 
@@ -41,7 +41,9 @@
                 <div class="menu-item" data-target="screen-read">ЧИТАТЬ</div>
                 <div class="menu-item" data-target="screen-learn">УЧИТЬ</div>
                 <div class="menu-item" data-target="screen-ideas">ИДЕИ</div>
-                <div class="menu-item" data-target="screen-login">ВОЙТИ</div>
+                <div class="menu-item auth-only hidden" data-target="screen-favorites">ИЗБРАННЫЕ</div>
+                <div class="menu-item admin-only hidden" data-target="screen-admin">ЗАГРУЗКА</div>
+                <div class="menu-item" id="menu-login-item" data-target="screen-login">ВОЙТИ</div>
             </div>
 
             <div class="menu-bottom-arrow">
@@ -49,11 +51,11 @@
                     <polyline points="6 9 12 15 18 9"></polyline>
                 </svg>
             </div>
-            <img src="logo.png" class="menu-logo-img" alt="Лого">
+            <img src="assets/logo.png" class="menu-logo-img" alt="Лого">
             <div class="logo-433-wrapper menu-433-topleft">
-                <img src="logo433.png" class="logo-part logo-left" alt="">
-                <img src="logo433.png" class="logo-part logo-right" alt="">
-                <img src="logo433.png" class="logo-part logo-colon blink" alt="4:33">
+                <img src="assets/logo433.png" class="logo-part logo-left" alt="">
+                <img src="assets/logo433.png" class="logo-part logo-right" alt="">
+                <img src="assets/logo433.png" class="logo-part logo-colon blink" alt="4:33">
             </div>
         </div>
 
@@ -680,16 +682,17 @@
                 <div class="header-title">ВОЙТИ</div>
             </div>
             <div class="form-container">
-                <input type="email" class="form-input" placeholder="Почта">
-                <input type="password" class="form-input" placeholder="Пароль">
+                <input type="email" class="form-input" id="login-email" placeholder="Почта">
+                <input type="password" class="form-input" id="login-password" placeholder="Пароль">
                 <div class="form-options">
                     <label class="form-checkbox">
                         <input type="checkbox"> Запомнить меня
                     </label>
                     <a href="#" class="form-link">Забыли пароль?</a>
                 </div>
-                <button class="form-btn">Вход</button>
-                <div class="form-link" data-target="screen-register" onclick="navigate('screen-register')">Создать
+                <button class="form-btn" id="login-submit">Вход</button>
+                <div class="form-status" id="login-status"></div>
+                <div class="form-link" data-target="screen-register">Создать
                     аккаунт</div>
             </div>
         </div>
@@ -704,10 +707,52 @@
                 <div class="header-title" style="font-size: 32px;">РЕГИСТРАЦИЯ</div>
             </div>
             <div class="form-container">
-                <input type="text" class="form-input" placeholder="Имя">
-                <input type="email" class="form-input" placeholder="Почта">
-                <input type="password" class="form-input" placeholder="Пароль">
-                <button class="form-btn" style="margin-top: 40px;">Создать</button>
+                <input type="text" class="form-input" id="register-name" placeholder="Имя">
+                <input type="email" class="form-input" id="register-email" placeholder="Почта">
+                <input type="password" class="form-input" id="register-password" placeholder="Пароль">
+                <button class="form-btn" id="register-submit" style="margin-top: 40px;">Создать</button>
+                <div class="form-status" id="register-status"></div>
+            </div>
+        </div>
+
+        <!-- ИЗБРАННЫЕ -->
+        <div id="screen-favorites" class="screen screen-light">
+            <div class="header">
+                <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24">
+                        <path d="M9 14L4 9l5-5" />
+                        <path d="M4 9h10.5A5.5 5.5 0 0 1 20 14.5v0A5.5 5.5 0 0 1 14.5 20H11" />
+                    </svg></button>
+                <div class="header-title">ИЗБРАННЫЕ</div>
+            </div>
+            <div class="track-list" id="favorites-list"></div>
+        </div>
+
+        <!-- АДМИН: ЗАГРУЗКА КОНТЕНТА -->
+        <div id="screen-admin" class="screen screen-light">
+            <div class="header">
+                <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24">
+                        <path d="M9 14L4 9l5-5" />
+                        <path d="M4 9h10.5A5.5 5.5 0 0 1 20 14.5v0A5.5 5.5 0 0 1 14.5 20H11" />
+                    </svg></button>
+                <div class="header-title">ЗАГРУЗКА</div>
+            </div>
+            <div class="form-container">
+                <select class="form-input" id="upload-section">
+                    <option value="listen-tales">Слушать / Сказки</option>
+                    <option value="listen-music">Слушать / Музыка</option>
+                    <option value="listen-poems">Слушать / Стихи</option>
+                    <option value="watch-clips">Смотреть / Клипы</option>
+                    <option value="watch-docs">Смотреть / Докфильм</option>
+                    <option value="watch-vids">Смотреть / Ролики</option>
+                    <option value="watch-photo">Смотреть / Фото</option>
+                    <option value="watch-pics">Смотреть / Картинки</option>
+                </select>
+                <input type="text" class="form-input" id="upload-title" placeholder="Название">
+                <input type="text" class="form-input" id="upload-desc" placeholder="Описание">
+                <input type="file" class="form-input form-file" id="upload-file"
+                    accept="image/*,video/*,audio/*">
+                <button class="form-btn" id="upload-submit">Загрузить</button>
+                <div class="form-status" id="upload-status"></div>
             </div>
         </div>
 
@@ -715,6 +760,7 @@
     </div> <!-- end app-container -->
 
     <script src="app.js"></script>
+    <script src="api.js"></script>
 </body>
 
 </html>

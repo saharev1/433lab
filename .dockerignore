@@ -2,3 +2,7 @@
 Dockerfile
 .dockerignore
 *.md
+backend
+docs
+docker-compose.yml
+nginx/433lab.conf

@@ -1,0 +1,28 @@
+services:
+  web:
+    build: .
+    container_name: 433lab-web
+    ports:
+      - "6060:6060"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  backend:
+    build: ./backend
+    container_name: 433lab-backend
+    environment:
+      - PORT=3000
+      - JWT_SECRET=${JWT_SECRET:-change-me-in-production}
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@433lab.local}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin433}
+      - MEDIA_DIR=/media
+      - DB_PATH=/data/app.db
+    volumes:
+      - media:/media
+      - dbdata:/data
+    restart: unless-stopped
+
+volumes:
+  media:
+  dbdata:

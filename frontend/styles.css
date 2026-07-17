@@ -25,7 +25,7 @@ body {
     position: fixed;
     top: 0; left: 0;
     width: 100vw; height: 100vh;
-    background-image: url('bg.png');
+    background-image: url('assets/bg.png');
     background-position: center center;
     background-size: cover;
     background-repeat: no-repeat;
@@ -693,4 +693,143 @@ body {
         width: 200px;
         transform: translateY(-25vh);
     }
+}
+
+/* ============================================== */
+/* API-интеграция: авторизация, лайки, комментарии */
+/* ============================================== */
+
+.hidden {
+    display: none !important;
+}
+
+.form-status {
+    margin-top: 15px;
+    font-size: 14px;
+    color: #2e7d32;
+    min-height: 20px;
+    text-align: center;
+}
+
+.form-status.error {
+    color: #c62828;
+}
+
+.form-file {
+    padding: 12px;
+    cursor: pointer;
+}
+
+select.form-input {
+    cursor: pointer;
+    appearance: none;
+}
+
+/* Лайки */
+.icon-btn.liked svg path {
+    fill: #e53935;
+    stroke: #e53935;
+}
+
+.like-count {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-left: 4px;
+    vertical-align: middle;
+}
+
+/* Плееры */
+.media-audio {
+    width: 100%;
+    margin: 10px 0;
+    height: 36px;
+}
+
+.video-thumb-player video,
+.video-thumb-player img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.video-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+/* Фото с сервера */
+.photo-item-real {
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.photo-actions {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 20px;
+    padding: 4px 8px;
+}
+
+.fav-photo {
+    max-width: 100%;
+    max-height: 240px;
+    display: block;
+    margin: 10px 0;
+    border-radius: 8px;
+}
+
+/* Комментарии */
+.comments-block {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.comments-list {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+}
+
+.comment-item {
+    font-size: 13px;
+    color: var(--text-dark);
+    padding: 4px 0;
+}
+
+.comment-form {
+    display: flex;
+    gap: 8px;
+}
+
+.comment-input {
+    flex: 1;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-family: var(--font-family);
+    font-size: 13px;
+    background: transparent;
+    outline: none;
+}
+
+.comment-send {
+    border: none;
+    background: var(--text-dark);
+    color: #fff;
+    border-radius: 6px;
+    padding: 0 14px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.empty-note {
+    font-size: 14px;
+    color: var(--text-muted);
+    padding: 10px 0;
 }
