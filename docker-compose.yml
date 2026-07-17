@@ -6,6 +6,8 @@ services:
       - "6060:6060"
     depends_on:
       - backend
+    volumes:
+      - media:/media
     restart: unless-stopped
 
   backend:
