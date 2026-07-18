@@ -155,10 +155,11 @@ body {
     z-index: 100;
 }
 
-.menu-433-topleft {
+.menu-433-topcenter {
     position: absolute;
     top: 40px;
-    left: 40px;
+    left: 50%;
+    transform: translateX(-50%);
     width: 120px;
 }
 
@@ -652,10 +653,11 @@ body {
         gap: 18px;
     }
     
-    .menu-433-topleft {
+    .menu-433-topcenter {
         top: 25px;
-        left: 20px;
-        width: 70px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
     }
 
     /* Submenu items smaller */
