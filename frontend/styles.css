@@ -162,6 +162,7 @@ body {
     transform: translateX(-50%);
     width: 120px;
     filter: invert(1);
+    mix-blend-mode: multiply;
 }
 
 .search-box-wrapper {
