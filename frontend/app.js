@@ -16,33 +16,36 @@ document.addEventListener('DOMContentLoaded', () => {
         const isTargetLight = target.classList.contains('screen-light');
 
         if (!isCurrentLight && isTargetLight) {
-            // Dark → Light: road slides DOWN, light screen rises UP
+            // Dark → Light: деревья и горизонт улетают вверх, белая полоса дороги
+            // раздувается от нижней кромки и бесшовно становится светлым фоном экрана
             isAnimating = true;
 
-            // Fade out the current dark screen (menu)
+            // Контент тёмного экрана улетает вверх вместе с дорогой
             if (current) {
-                current.style.transition = 'opacity 0.4s ease, transform 0.6s ease';
+                current.style.transition = 'opacity 0.5s ease, transform 0.9s cubic-bezier(0.45, 0, 0.2, 1), filter 0.9s ease';
                 current.style.opacity = '0';
-                current.style.transform = 'translateY(-30px)';
+                current.style.transform = 'translateY(-18vh)';
+                current.style.filter = 'blur(4px)';
             }
 
-            // After menu fades, slide the road down
+            // Зум от основания полосы (CSS .zoom-in): полоса заполняет экран
             setTimeout(() => {
                 if (current) current.classList.remove('active');
                 bg.classList.add('zoom-in');
             }, 300);
 
-            // After road slides away, show the light screen rising up
+            // Полоса стала фоном — светлый экран всплывает снизу, продолжая движение вверх
             setTimeout(() => {
                 bg.classList.add('hidden');
+                target.style.animation = 'none'; // без двойного fadeIn поверх transition
                 target.style.opacity = '0';
-                target.style.transform = 'translateY(-60px)';
+                target.style.transform = 'translateY(44px)';
                 target.classList.add('active');
 
                 // Force reflow
                 void target.offsetWidth;
 
-                target.style.transition = 'opacity 0.6s ease, transform 0.8s cubic-bezier(0.2, 0, 0.2, 1)';
+                target.style.transition = 'opacity 0.7s ease, transform 1s cubic-bezier(0.16, 1, 0.3, 1)';
                 target.style.opacity = '1';
                 target.style.transform = 'translateY(0)';
 
@@ -52,23 +55,26 @@ document.addEventListener('DOMContentLoaded', () => {
                         current.style.transition = '';
                         current.style.opacity = '';
                         current.style.transform = '';
+                        current.style.filter = '';
                     }
                     target.style.transition = '';
                     target.style.opacity = '';
                     target.style.transform = '';
+                    // animation: none НЕ сбрасываем здесь — возврат запускает CSS fadeIn
+                    // заново, и экран мигает; сброс произойдёт перед следующим показом
                     isAnimating = false;
-                }, 800);
-            }, 1000);
+                }, 1000);
+            }, 1050);
 
         } else if (isCurrentLight && !isTargetLight) {
             // Light → Dark: light screen sinks DOWN, road rises UP from below
             isAnimating = true;
 
-            // Sink the current light screen down
+            // Sink the current light screen down (зеркально появлению)
             if (current) {
                 current.style.transition = 'opacity 0.5s ease, transform 0.7s cubic-bezier(0.4, 0, 1, 1)';
                 current.style.opacity = '0';
-                current.style.transform = 'translateY(-60px)';
+                current.style.transform = 'translateY(44px)';
             }
 
             setTimeout(() => {
@@ -83,6 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 bg.classList.remove('zoom-in');
 
                 // Show the target dark screen
+                target.style.animation = 'none'; // без fadeIn поверх transition (и без мигания при сбросе)
                 target.style.opacity = '0';
                 target.classList.add('active');
 
@@ -106,6 +113,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             // Same type switch (light ↔ light, dark ↔ dark)
             if (current) current.classList.remove('active');
+            // Пока экран скрыт, возвращаем ему штатный CSS fadeIn (мог быть
+            // заглушен инлайновым animation: none в анимированных ветках)
+            target.style.animation = '';
             target.classList.add('active');
             if (isTargetLight) {
                 bg.classList.add('hidden');

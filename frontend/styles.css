@@ -29,37 +29,49 @@ body {
     background-position: center center;
     background-size: cover;
     background-repeat: no-repeat;
-    transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1),
-                opacity 0.8s ease 0.3s,
-                filter 1s ease;
-    transform-origin: 50% 50%;
+    /* Обратный ход (свет → дорога): полоса сужается обратно, деревья опускаются сверху */
+    transition: transform 1.3s cubic-bezier(0.22, 1, 0.36, 1),
+                filter 1.2s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.7s ease 0.15s;
+    /* Основание белой полосы дороги: зум от него раздувает полосу на весь экран,
+       а верх кадра (деревья, горизонт) улетает вверх */
+    transform-origin: 50% 100%;
     overflow: hidden;
+    will-change: transform, filter, opacity;
 }
 
-/* Fog overlay that sweeps in during transition */
+/* Белая «заливка», поднимающаяся от основания полосы вверх — цвет 1:1 с фоном,
+   поэтому переход полоса → фон бесшовный */
 .app-bg::after {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     background: linear-gradient(
         to top,
-        rgba(235, 234, 232, 0) 0%,
-        rgba(235, 234, 232, 0.6) 40%,
-        rgba(235, 234, 232, 1) 100%
+        #ebeae8 0%,
+        #ebeae8 30%,
+        rgba(235, 234, 232, 0) 100%
     );
     opacity: 0;
-    transition: opacity 0.8s ease;
+    transform: translateY(40%);
+    transition: opacity 0.6s ease, transform 1.3s cubic-bezier(0.22, 1, 0.36, 1);
     pointer-events: none;
 }
 
+/* Прямой ход (дорога → свет): деревья улетают вверх, белая полоса
+   раздувается от нижней кромки и становится фоном экрана */
 .app-bg.zoom-in {
-    transform: translateY(-100vh);
-    filter: blur(12px);
-    opacity: 0;
+    transform: scale(6);
+    filter: blur(4px) brightness(1.04) saturate(0.9);
+    transition: transform 1.6s cubic-bezier(0.45, 0, 0.2, 1),
+                filter 1.4s cubic-bezier(0.45, 0, 0.2, 1),
+                opacity 0.5s ease 0.2s;
 }
 
 .app-bg.zoom-in::after {
     opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.8s ease 0.3s, transform 1.6s cubic-bezier(0.45, 0, 0.2, 1);
 }
 
 .app-bg.blurred {
@@ -94,6 +106,46 @@ body {
     from { opacity: 0; }
     to { opacity: 1; }
 }
+
+/* Каскадное всплытие пунктов и карточек при появлении экрана */
+@keyframes riseIn {
+    from {
+        opacity: 0;
+        transform: translateY(26px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.screen.active .menu-item,
+.screen.active .submenu-item,
+.screen.active .track-item,
+.screen.active .video-item,
+.screen.active .article-item {
+    animation: riseIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.screen.active .menu-item:nth-child(1), .screen.active .submenu-item:nth-child(1),
+.screen.active .track-item:nth-child(1), .screen.active .video-item:nth-child(1),
+.screen.active .article-item:nth-child(1) { animation-delay: 0.05s; }
+
+.screen.active .menu-item:nth-child(2), .screen.active .submenu-item:nth-child(2),
+.screen.active .track-item:nth-child(2), .screen.active .video-item:nth-child(2),
+.screen.active .article-item:nth-child(2) { animation-delay: 0.13s; }
+
+.screen.active .menu-item:nth-child(3), .screen.active .submenu-item:nth-child(3),
+.screen.active .track-item:nth-child(3), .screen.active .video-item:nth-child(3),
+.screen.active .article-item:nth-child(3) { animation-delay: 0.21s; }
+
+.screen.active .menu-item:nth-child(4), .screen.active .submenu-item:nth-child(4),
+.screen.active .track-item:nth-child(4), .screen.active .video-item:nth-child(4),
+.screen.active .article-item:nth-child(4) { animation-delay: 0.29s; }
+
+.screen.active .menu-item:nth-child(n+5), .screen.active .submenu-item:nth-child(n+5),
+.screen.active .track-item:nth-child(n+5), .screen.active .video-item:nth-child(n+5),
+.screen.active .article-item:nth-child(n+5) { animation-delay: 0.37s; }
 
 /* ========================================
    1. Home Screen
@@ -694,8 +746,8 @@ body {
         font-size: 14px;
     }
 
-    /* Logo on home screen */
-    .logo-433-wrapper {
+    /* Logo on home screen (scoped: must not override .menu-433-topcenter transform) */
+    #screen-home .logo-433-wrapper {
         width: 200px;
         transform: translateY(-25vh);
     }
