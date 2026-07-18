@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>4:33</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=6">
+    <link rel="stylesheet" href="styles.css?v=7">
 </head>
 
 <body>
@@ -51,7 +51,7 @@
                     <polyline points="6 9 12 15 18 9"></polyline>
                 </svg>
             </div>
-            <img src="assets/logo.png" id="menu-author-bio" class="menu-logo-img" alt="Лого">
+            <img src="assets/logo.png" id="menu-author-bio" class="menu-logo-img" data-target="screen-author-bio" alt="Лого">
             <div class="logo-433-wrapper menu-433-topleft">
                 <img src="assets/logo433.png" class="logo-part logo-left" alt="">
                 <img src="assets/logo433.png" class="logo-part logo-right" alt="">
@@ -725,6 +725,26 @@
                 <div class="header-title">ИЗБРАННЫЕ</div>
             </div>
             <div class="track-list" id="favorites-list"></div>
+        </div>
+
+        <!-- БИОГРАФИЯ АВТОРА -->
+        <div id="screen-author-bio" class="screen screen-light">
+            <div class="header">
+                <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24">
+                        <path d="M9 14L4 9l5-5" />
+                        <path d="M4 9h10.5A5.5 5.5 0 0 1 20 14.5v0A5.5 5.5 0 0 1 14.5 20H11" />
+                    </svg></button>
+                <div class="header-title">ОБ АВТОРЕ</div>
+            </div>
+            <div class="bio-container">
+                <img src="assets/logo.png" class="bio-logo" alt="ВЕДМА">
+                <div class="bio-text">ВЕДМА — автор проекта 4:33.
+
+                    Пишет стихи, прозу и сказки, записывает музыку, снимает клипы и ролики. 4:33 — пространство, где
+                    собраны все работы автора: то, что можно слушать, смотреть, читать и учить.
+
+                    Полная биография появится здесь совсем скоро.</div>
+            </div>
         </div>
 
         <!-- АДМИН: ЗАГРУЗКА КОНТЕНТА -->

@@ -892,3 +892,41 @@ select.form-input {
     border-top: none;
     z-index: 2;
 }
+
+/* ============================================== */
+/* Биография автора */
+/* ============================================== */
+
+.bio-container {
+    width: 80%;
+    max-width: 640px;
+    margin: 10px auto 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+}
+
+.bio-logo {
+    width: 180px;
+    max-width: 60%;
+    object-fit: contain;
+    mix-blend-mode: multiply;
+}
+
+.bio-text {
+    font-size: 16px;
+    line-height: 1.7;
+    white-space: pre-line;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .bio-logo {
+        width: 140px;
+    }
+
+    .bio-text {
+        font-size: 14px;
+    }
+}
