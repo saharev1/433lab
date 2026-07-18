@@ -151,7 +151,8 @@ body {
 }
 
 .menu-logo-img {
-    display: none;
+    cursor: pointer;
+    z-index: 100;
 }
 
 .menu-433-topleft {
