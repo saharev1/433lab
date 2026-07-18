@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS media (
     type        TEXT NOT NULL CHECK (type IN ('photo', 'video', 'audio')),
     filename    TEXT NOT NULL,
     url         TEXT NOT NULL,
+    tags        TEXT NOT NULL DEFAULT '',
     uploaded_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
     created_at  TEXT NOT NULL DEFAULT (datetime('now'))
 );
@@ -50,6 +51,13 @@ CREATE TABLE IF NOT EXISTS comments (
 );
 CREATE INDEX IF NOT EXISTS idx_comments_media ON comments(media_id);
 `);
+
+// Миграция для баз, созданных до появления тегов
+const mediaCols = db.prepare('PRAGMA table_info(media)').all();
+if (!mediaCols.some(c => c.name === 'tags')) {
+    db.exec("ALTER TABLE media ADD COLUMN tags TEXT NOT NULL DEFAULT ''");
+    console.log('[db] migrated: added media.tags column');
+}
 
 function seedAdmin() {
     const email = process.env.ADMIN_EMAIL || 'admin@433lab.local';

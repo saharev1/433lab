@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>4:33</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=8">
+    <link rel="stylesheet" href="styles.css?v=9">
 </head>
 
 <body>
@@ -727,6 +727,23 @@
             <div class="track-list" id="favorites-list"></div>
         </div>
 
+        <!-- ПОИСК -->
+        <div id="screen-search" class="screen screen-light">
+            <div class="header">
+                <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24">
+                        <path d="M9 14L4 9l5-5" />
+                        <path d="M4 9h10.5A5.5 5.5 0 0 1 20 14.5v0A5.5 5.5 0 0 1 14.5 20H11" />
+                    </svg></button>
+                <div class="header-title">ПОИСК</div>
+            </div>
+            <div class="search-box-wrapper light-search"><svg class="search-icon" viewBox="0 0 24 24">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg><input type="text" class="search-input" id="search-screen-input" placeholder="ПОИСК"></div>
+            <div class="submenu-list search-sections" id="search-sections"></div>
+            <div class="track-list" id="search-results"></div>
+        </div>
+
         <!-- БИОГРАФИЯ АВТОРА -->
         <div id="screen-author-bio" class="screen screen-light">
             <div class="header">
@@ -769,6 +786,7 @@
                 </select>
                 <input type="text" class="form-input" id="upload-title" placeholder="Название">
                 <input type="text" class="form-input" id="upload-desc" placeholder="Описание">
+                <input type="text" class="form-input" id="upload-tags" placeholder="Теги через запятую (для поиска)">
                 <input type="file" class="form-input form-file" id="upload-file"
                     accept="image/*,video/*,audio/*">
                 <button class="form-btn" id="upload-submit">Загрузить</button>

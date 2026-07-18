@@ -986,3 +986,42 @@ select.form-input {
         font-size: 14px;
     }
 }
+
+/* ============================================== */
+/* Поиск */
+/* ============================================== */
+
+.search-sections {
+    margin-bottom: 30px;
+}
+
+.search-sections .submenu-item {
+    font-size: 24px;
+}
+
+#search-results {
+    padding-bottom: 60px;
+}
+
+.search-item-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: baseline;
+    margin-bottom: 12px;
+    font-size: 13px;
+}
+
+.search-section-link {
+    color: var(--text-muted);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.search-section-link:hover {
+    color: var(--text-dark);
+}
+
+.search-tags {
+    color: var(--text-muted);
+}

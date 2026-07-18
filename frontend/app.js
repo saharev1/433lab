@@ -127,29 +127,57 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Handle clicks
-    document.querySelectorAll('[data-target]').forEach(item => {
-        item.addEventListener('click', (e) => {
-            if (isAnimating) return;
-            const targetId = item.getAttribute('data-target');
-            if (targetId) {
-                const currentId = history[history.length - 1];
-                history.push(targetId);
-                transitionScreens(currentId, targetId);
-            }
-        });
+    // Сохраняем текущий экран в URL-хэше (replaceState — без записей в истории браузера)
+    function saveScreen(screenId) {
+        try {
+            window.history.replaceState(null, '', '#' + screenId);
+        } catch (e) { /* file:// и старые браузеры */ }
+    }
+
+    function navigateTo(targetId) {
+        if (isAnimating) return;
+        const target = document.getElementById(targetId);
+        if (!target) return;
+        const currentId = history[history.length - 1];
+        if (targetId === currentId) return;
+        history.push(targetId);
+        saveScreen(targetId);
+        transitionScreens(currentId, targetId);
+    }
+
+    // Handle clicks (делегирование — работает и для динамически созданных элементов)
+    document.addEventListener('click', (e) => {
+        const item = e.target.closest('[data-target]');
+        if (!item) return;
+        const targetId = item.getAttribute('data-target');
+        if (targetId) navigateTo(targetId);
     });
+
+    // Доступно другим скриптам (api.js: экран поиска и т.п.)
+    window.navigateTo = navigateTo;
 
     // Global goBack
     window.goBack = function() {
         if (history.length > 1 && !isAnimating) {
             const currentId = history.pop();
             const targetId = history[history.length - 1];
+            saveScreen(targetId);
             transitionScreens(currentId, targetId);
         }
     };
 
-    // Initialize first screen
-    const home = document.getElementById('screen-home');
-    if (home) home.classList.add('active');
+    // Initialize first screen: при перезагрузке возвращаемся на сохранённый экран
+    const savedId = window.location.hash.slice(1);
+    const saved = savedId && savedId !== 'screen-home' && document.getElementById(savedId);
+    if (saved) {
+        history = ['screen-home', savedId];
+        saved.classList.add('active');
+        if (saved.classList.contains('screen-light')) {
+            bg.classList.add('hidden');
+            bg.classList.add('zoom-in');
+        }
+    } else {
+        const home = document.getElementById('screen-home');
+        if (home) home.classList.add('active');
+    }
 });

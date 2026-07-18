@@ -30,6 +30,30 @@
         'watch-pics': 'Смотреть / Картинки'
     };
 
+    // Экраны, находимые поиском по названию раздела
+    const SCREEN_NAMES = {
+        'screen-listen': 'Слушать',
+        'screen-listen-tales': 'Слушать / Сказки',
+        'screen-listen-music': 'Слушать / Музыка',
+        'screen-listen-poems': 'Слушать / Стихи',
+        'screen-watch': 'Смотреть',
+        'screen-watch-clips': 'Смотреть / Клипы',
+        'screen-watch-docs': 'Смотреть / Докфильм',
+        'screen-watch-vids': 'Смотреть / Ролики',
+        'screen-watch-works': 'Смотреть / Работы',
+        'screen-watch-photo': 'Смотреть / Фото',
+        'screen-watch-pics': 'Смотреть / Картинки',
+        'screen-read': 'Читать',
+        'screen-read-poems': 'Читать / Стихи',
+        'screen-read-prose': 'Читать / Проза',
+        'screen-read-scripts': 'Читать / Сценарии',
+        'screen-learn': 'Учить',
+        'screen-learn-guides': 'Учить / Гайды',
+        'screen-ideas': 'Идеи',
+        'screen-author-bio': 'Об авторе',
+        'screen-favorites': 'Избранные'
+    };
+
     // ---------- состояние ----------
 
     function getToken() { return localStorage.getItem(TOKEN_KEY); }
@@ -164,6 +188,7 @@
         form.innerHTML =
             '<input type="text" class="comment-input edit-title" value="' + esc(item.title) + '" placeholder="Название">' +
             '<input type="text" class="comment-input edit-desc" value="' + esc(item.description) + '" placeholder="Описание">' +
+            '<input type="text" class="comment-input edit-tags" value="' + esc((item.tags || []).join(', ')) + '" placeholder="Теги через запятую">' +
             '<select class="comment-input edit-section">' + sectionOptions(item.section) + '</select>' +
             '<div class="edit-actions">' +
             '<button class="comment-send js-edit-save" data-id="' + item.id + '">Сохранить</button>' +
@@ -178,6 +203,7 @@
         const body = {
             title: form.querySelector('.edit-title').value,
             description: form.querySelector('.edit-desc').value,
+            tags: form.querySelector('.edit-tags').value,
             section: form.querySelector('.edit-section').value
         };
         const data = await api('/api/media/' + id, { method: 'PATCH', body });
@@ -225,6 +251,84 @@
         const render = kind === 'track' ? renderTrack : kind === 'video' ? renderVideo : renderPhoto;
         container.innerHTML = data.media.map(render).join('');
     }
+
+    // ---------- поиск ----------
+
+    function renderSearchItem(item) {
+        mediaCache[item.id] = item;
+        const sectionName = SECTION_TITLES[item.section] || item.section;
+        return '<div class="track-item" data-media-id="' + item.id + '">' +
+            '<div class="track-title">' + esc(item.title) + '</div>' +
+            (item.description ? '<div class="track-desc">' + esc(item.description) + '</div>' : '') +
+            '<div class="search-item-meta">' +
+            '<span class="search-section-link" data-target="screen-' + esc(item.section) + '">' + esc(sectionName) + '</span>' +
+            (item.tags && item.tags.length
+                ? '<span class="search-tags">' + item.tags.map(t => '#' + esc(t)).join(' ') + '</span>' : '') +
+            '</div>' +
+            (item.type === 'photo'
+                ? '<img class="fav-photo" src="' + esc(item.url) + '" alt="">'
+                : item.type === 'video'
+                    ? '<div class="video-thumb video-thumb-player"><video controls preload="metadata" src="' + esc(item.url) + '#t=0.001"></video></div>'
+                    : '<audio class="media-audio" controls preload="none" src="' + esc(item.url) + '"></audio>') +
+            '<div class="track-controls">' + heartBtn(item) + commentBtn(item) + adminBtns(item) + '</div>' +
+            commentsBlock(item) + '</div>';
+    }
+
+    let searchSeq = 0;
+
+    async function performSearch(query) {
+        const q = String(query || '').trim();
+        const secBox = document.getElementById('search-sections');
+        const resBox = document.getElementById('search-results');
+        if (!secBox || !resBox) return;
+        const input = document.getElementById('search-screen-input');
+        if (input && input.value.trim() !== q) input.value = q;
+        if (!q) { secBox.innerHTML = ''; resBox.innerHTML = ''; return; }
+        const ql = q.toLowerCase();
+
+        // совпадения по названиям разделов
+        const sections = Object.keys(SCREEN_NAMES).filter(id =>
+            document.getElementById(id) &&
+            (id !== 'screen-favorites' || getToken()) &&
+            SCREEN_NAMES[id].toLowerCase().includes(ql));
+        secBox.innerHTML = sections.map(id =>
+            '<div class="submenu-item search-section-item" data-target="' + id + '">' +
+            esc(SCREEN_NAMES[id]) + '</div>').join('');
+
+        // совпадения по постам (название/описание/теги)
+        const seq = ++searchSeq;
+        resBox.innerHTML = '<div class="empty-note">Поиск...</div>';
+        let data;
+        try {
+            data = await api('/api/search?q=' + encodeURIComponent(q));
+        } catch (e) {
+            if (seq === searchSeq) resBox.innerHTML = '<div class="empty-note">' + esc(e.message) + '</div>';
+            return;
+        }
+        if (seq !== searchSeq) return; // пришёл более свежий запрос
+        resBox.innerHTML = data.media.length
+            ? data.media.map(renderSearchItem).join('')
+            : (sections.length ? '' : '<div class="empty-note">Ничего не найдено</div>');
+    }
+
+    // Enter в любой строке поиска → экран результатов
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter') return;
+        const input = e.target.closest('.search-input');
+        if (!input) return;
+        const q = input.value.trim();
+        if (!q) return;
+        if (window.navigateTo) window.navigateTo('screen-search');
+        performSearch(q);
+    });
+
+    // Живой поиск при наборе на экране поиска
+    let searchDebounce;
+    document.addEventListener('input', (e) => {
+        if (e.target.id !== 'search-screen-input') return;
+        clearTimeout(searchDebounce);
+        searchDebounce = setTimeout(() => performSearch(e.target.value), 350);
+    });
 
     // ---------- избранное ----------
 
@@ -393,6 +497,7 @@
             fd.append('section', document.getElementById('upload-section').value);
             fd.append('title', document.getElementById('upload-title').value.trim());
             fd.append('description', document.getElementById('upload-desc').value.trim());
+            fd.append('tags', document.getElementById('upload-tags').value.trim());
             if (!fileInput.files.length) { status.textContent = 'Выберите файл'; status.classList.add('error'); return; }
             fd.append('file', fileInput.files[0]);
             status.textContent = 'Загрузка...';
@@ -403,6 +508,7 @@
                 fileInput.value = '';
                 document.getElementById('upload-title').value = '';
                 document.getElementById('upload-desc').value = '';
+                document.getElementById('upload-tags').value = '';
             } catch (err) {
                 status.textContent = err.message;
                 status.classList.add('error');
@@ -456,6 +562,12 @@
         wireAuthForms();
         wireAdminForm();
         updateAuthUI();
+        // при перезагрузке app.js восстанавливает экран из хэша — подгружаем его контент
+        const restoredId = window.location.hash.slice(1);
+        if (restoredId) {
+            if (MEDIA_SECTIONS[restoredId]) loadSection(restoredId);
+            if (restoredId === 'screen-favorites') loadFavorites();
+        }
         // проверяем валидность сохранённого токена
         if (getToken()) {
             api('/api/auth/me').then(d => {

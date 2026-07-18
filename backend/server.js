@@ -60,6 +60,14 @@ function adminOnly(req, res, next) {
     next();
 }
 
+function normalizeTags(raw) {
+    return String(raw || '')
+        .split(',')
+        .map(t => t.trim().replace(/^#/, ''))
+        .filter(Boolean)
+        .join(',');
+}
+
 function mediaTypeOf(mimetype) {
     if (mimetype.startsWith('image/')) return 'photo';
     if (mimetype.startsWith('video/')) return 'video';
@@ -80,6 +88,7 @@ function mediaWithMeta(row, userId) {
         section: row.section,
         type: row.type,
         url: row.url,
+        tags: row.tags ? row.tags.split(',') : [],
         createdAt: row.created_at,
         likeCount,
         commentCount,
@@ -151,7 +160,7 @@ app.get('/api/auth/me', auth(), (req, res) => {
 
 app.post('/api/media/upload', auth(), adminOnly, upload.single('file'), (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'Файл не получен' });
-    const { section, title, description } = req.body || {};
+    const { section, title, description, tags } = req.body || {};
     if (!section || !title) {
         fs.unlink(req.file.path, () => {});
         return res.status(400).json({ error: 'Укажите раздел и название' });
@@ -160,10 +169,22 @@ app.post('/api/media/upload', auth(), adminOnly, upload.single('file'), (req, re
     const subdir = type === 'photo' ? 'Photos' : 'Videos';
     const url = `/media/${subdir}/${req.file.filename}`;
     const info = db.prepare(
-        'INSERT INTO media (title, description, section, type, filename, url, uploaded_by) VALUES (?, ?, ?, ?, ?, ?, ?)'
-    ).run(title.trim(), (description || '').trim(), section.trim(), type, req.file.filename, url, req.user.id);
+        'INSERT INTO media (title, description, section, type, filename, url, tags, uploaded_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+    ).run(title.trim(), (description || '').trim(), section.trim(), type, req.file.filename, url, normalizeTags(tags), req.user.id);
     const row = db.prepare('SELECT * FROM media WHERE id = ?').get(info.lastInsertRowid);
     res.status(201).json({ media: mediaWithMeta(row, req.user.id) });
+});
+
+// Поиск по названию, описанию и тегам (регистронезависимый, в т.ч. кириллица)
+app.get('/api/search', auth(false), (req, res) => {
+    const q = String(req.query.q || '').trim().toLowerCase();
+    if (!q) return res.json({ media: [] });
+    const rows = db.prepare('SELECT * FROM media ORDER BY created_at DESC').all();
+    const found = rows.filter(r =>
+        (r.title || '').toLowerCase().includes(q) ||
+        (r.description || '').toLowerCase().includes(q) ||
+        (r.tags || '').toLowerCase().includes(q));
+    res.json({ media: found.map(r => mediaWithMeta(r, req.user ? req.user.id : null)) });
 });
 
 app.get('/api/media/:section', auth(false), (req, res) => {
@@ -175,13 +196,14 @@ app.get('/api/media/:section', auth(false), (req, res) => {
 app.patch('/api/media/:id', auth(), adminOnly, (req, res) => {
     const row = db.prepare('SELECT * FROM media WHERE id = ?').get(req.params.id);
     if (!row) return res.status(404).json({ error: 'Медиа не найдено' });
-    const { title, description, section } = req.body || {};
+    const { title, description, section, tags } = req.body || {};
     const newTitle = title !== undefined ? String(title).trim() : row.title;
     if (!newTitle) return res.status(400).json({ error: 'Название не может быть пустым' });
     const newDesc = description !== undefined ? String(description).trim() : row.description;
     const newSection = section !== undefined && String(section).trim() ? String(section).trim() : row.section;
-    db.prepare('UPDATE media SET title = ?, description = ?, section = ? WHERE id = ?')
-        .run(newTitle, newDesc, newSection, row.id);
+    const newTags = tags !== undefined ? normalizeTags(tags) : row.tags;
+    db.prepare('UPDATE media SET title = ?, description = ?, section = ?, tags = ? WHERE id = ?')
+        .run(newTitle, newDesc, newSection, newTags, row.id);
     const updated = db.prepare('SELECT * FROM media WHERE id = ?').get(row.id);
     res.json({ media: mediaWithMeta(updated, req.user.id) });
 });
