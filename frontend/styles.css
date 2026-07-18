@@ -161,6 +161,7 @@ body {
     left: 50%;
     transform: translateX(-50%);
     width: 120px;
+    filter: invert(1);
 }
 
 .search-box-wrapper {
