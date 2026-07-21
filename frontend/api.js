@@ -164,6 +164,7 @@
     function renderPhoto(item) {
         mediaCache[item.id] = item;
         return '<div class="photo-item photo-item-real" data-media-id="' + item.id + '" ' +
+            'data-full="' + esc(item.url) + '" title="Открыть в полном размере" ' +
             'style="background-image:url(\'' + esc(item.url) + '\')">' +
             '<div class="photo-actions">' + heartBtn(item) + adminBtns(item) + '</div>' +
             '</div>';
@@ -244,10 +245,14 @@
         } catch (e) {
             return; // бэкенд недоступен — оставляем статический контент
         }
-        if (!data.media || !data.media.length) return;
-
         const container = screen.querySelector('.track-list, .video-list, .photo-grid, .cards-grid');
         if (!container) return;
+        // Сервер ответил — убираем прототипные плитки-заглушки в любом случае,
+        // иначе их (без кнопки удаления) невозможно убрать из пустого раздела.
+        if (!data.media || !data.media.length) {
+            container.innerHTML = '<div class="empty-note">Пока пусто</div>';
+            return;
+        }
         const render = kind === 'track' ? renderTrack : kind === 'video' ? renderVideo : renderPhoto;
         container.innerHTML = data.media.map(render).join('');
     }
@@ -266,7 +271,7 @@
                 ? '<span class="search-tags">' + item.tags.map(t => '#' + esc(t)).join(' ') + '</span>' : '') +
             '</div>' +
             (item.type === 'photo'
-                ? '<img class="fav-photo" src="' + esc(item.url) + '" alt="">'
+                ? '<img class="fav-photo" src="' + esc(item.url) + '" data-full="' + esc(item.url) + '" title="Открыть в полном размере" alt="">'
                 : item.type === 'video'
                     ? '<div class="video-thumb video-thumb-player"><video controls preload="metadata" src="' + esc(item.url) + '#t=0.001"></video></div>'
                     : '<audio class="media-audio" controls preload="none" src="' + esc(item.url) + '"></audio>') +
@@ -355,11 +360,53 @@
             '<div class="track-title">' + esc(item.title) + '</div>' +
             '<div class="track-desc">' + esc(SECTION_TITLES[item.section] || item.section) + '</div>' +
             (item.type === 'photo'
-                ? '<img class="fav-photo" src="' + esc(item.url) + '" alt="">'
+                ? '<img class="fav-photo" src="' + esc(item.url) + '" data-full="' + esc(item.url) + '" title="Открыть в полном размере" alt="">'
                 : '<audio class="media-audio" controls preload="none" src="' + esc(item.url) + '"></audio>') +
             '<div class="track-controls">' + heartBtn(item) + '</div>' +
             '</div>').join('');
     }
+
+    // ---------- лайтбокс: просмотр фото в полном размере ----------
+
+    function openLightbox(url) {
+        let box = document.getElementById('lightbox');
+        if (!box) {
+            box = document.createElement('div');
+            box.id = 'lightbox';
+            box.className = 'lightbox';
+            box.innerHTML = '<button class="lightbox-close" aria-label="Закрыть">&times;</button>' +
+                '<img class="lightbox-img" alt="">';
+            document.body.appendChild(box);
+        }
+        box.querySelector('.lightbox-img').src = url;
+        box.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+        const box = document.getElementById('lightbox');
+        if (!box) return;
+        box.classList.remove('open');
+        box.querySelector('.lightbox-img').src = '';
+        document.body.style.overflow = '';
+    }
+
+    // Открытие по клику на фото (но не по кнопкам лайка/удаления внутри плитки)
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('.lightbox-close') || e.target.id === 'lightbox') {
+            closeLightbox();
+            return;
+        }
+        const full = e.target.closest('[data-full]');
+        if (full && !e.target.closest('.icon-btn') && !e.target.closest('button')) {
+            e.preventDefault();
+            openLightbox(full.dataset.full);
+        }
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeLightbox();
+    });
 
     // ---------- лайки и комментарии (делегирование) ----------
 
