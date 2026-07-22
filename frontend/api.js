@@ -16,7 +16,16 @@
         'screen-watch-docs': 'video',
         'screen-watch-vids': 'video',
         'screen-watch-photo': 'photo',
-        'screen-watch-pics': 'photo'
+        'screen-watch-pics': 'photo',
+        'screen-read-poems': 'text',
+        'screen-read-prose': 'text',
+        'screen-read-scripts': 'text',
+        'screen-read-tales': 'text',
+        'screen-read-thoughts': 'text',
+        'screen-read-articles': 'text',
+        'screen-learn-guides': 'text',
+        'screen-learn-articles': 'text',
+        'screen-ideas': 'text'
     };
 
     const SECTION_TITLES = {
@@ -27,7 +36,16 @@
         'watch-docs': 'Смотреть / Докфильм',
         'watch-vids': 'Смотреть / Ролики',
         'watch-photo': 'Смотреть / Фото',
-        'watch-pics': 'Смотреть / Картинки'
+        'watch-pics': 'Смотреть / Картинки',
+        'read-poems': 'Читать / Стихи',
+        'read-prose': 'Читать / Проза',
+        'read-scripts': 'Читать / Сценарии',
+        'read-tales': 'Читать / Сказки',
+        'read-thoughts': 'Читать / Мысли',
+        'read-articles': 'Читать / Статьи',
+        'learn-guides': 'Учить / Гайды',
+        'learn-articles': 'Учить / Статьи',
+        'ideas': 'Идеи'
     };
 
     // Экраны, находимые поиском по названию раздела
@@ -47,8 +65,12 @@
         'screen-read-poems': 'Читать / Стихи',
         'screen-read-prose': 'Читать / Проза',
         'screen-read-scripts': 'Читать / Сценарии',
+        'screen-read-tales': 'Читать / Сказки',
+        'screen-read-thoughts': 'Читать / Мысли',
+        'screen-read-articles': 'Читать / Статьи',
         'screen-learn': 'Учить',
         'screen-learn-guides': 'Учить / Гайды',
+        'screen-learn-articles': 'Учить / Статьи',
         'screen-ideas': 'Идеи',
         'screen-author-bio': 'Об авторе',
         'screen-favorites': 'Избранные'
@@ -170,6 +192,25 @@
             '</div>';
     }
 
+    const TEXT_FOLD = 600; // длиннее — сворачиваем под «Читать полностью»
+
+    function renderText(item) {
+        mediaCache[item.id] = item;
+        const text = item.textContent || item.description || '';
+        const long = text.length > TEXT_FOLD;
+        return '<div class="article-item" data-media-id="' + item.id + '">' +
+            (item.url
+                ? '<img class="article-cover" src="' + esc(item.url) + '" data-full="' + esc(item.url) +
+                  '" title="Открыть в полном размере" alt="">' : '') +
+            '<div class="article-title">' + esc(item.title) + '</div>' +
+            '<div class="article-text' + (long ? ' article-text-fold' : '') + '">' + esc(text) + '</div>' +
+            (long ? '<button class="article-more js-text-toggle">Читать полностью</button>' : '') +
+            (item.tags && item.tags.length
+                ? '<div class="article-tags">' + item.tags.map(t => '#' + esc(t)).join(' ') + '</div>' : '') +
+            '<div class="article-controls">' + heartBtn(item) + commentBtn(item) + adminBtns(item) + '</div>' +
+            commentsBlock(item) + '</div>';
+    }
+
     // ---------- админ: редактирование и удаление ----------
 
     function sectionOptions(selected) {
@@ -189,6 +230,9 @@
         form.innerHTML =
             '<input type="text" class="comment-input edit-title" value="' + esc(item.title) + '" placeholder="Название">' +
             '<input type="text" class="comment-input edit-desc" value="' + esc(item.description) + '" placeholder="Описание">' +
+            (item.type === 'text'
+                ? '<textarea class="comment-input edit-text" placeholder="Текст публикации" rows="6">' + esc(item.textContent || '') + '</textarea>'
+                : '') +
             '<input type="text" class="comment-input edit-tags" value="' + esc((item.tags || []).join(', ')) + '" placeholder="Теги через запятую">' +
             '<select class="comment-input edit-section">' + sectionOptions(item.section) + '</select>' +
             '<div class="edit-actions">' +
@@ -201,20 +245,24 @@
     async function saveEdit(saveBtn) {
         const form = saveBtn.closest('.edit-block');
         const id = saveBtn.dataset.id;
+        const textEl = form.querySelector('.edit-text');
         const body = {
             title: form.querySelector('.edit-title').value,
             description: form.querySelector('.edit-desc').value,
             tags: form.querySelector('.edit-tags').value,
             section: form.querySelector('.edit-section').value
         };
+        if (textEl) body.text_content = textEl.value;
         const data = await api('/api/media/' + id, { method: 'PATCH', body });
         mediaCache[id] = data.media;
         const holder = form.closest('[data-media-id]');
         closeEditForm();
-        const titleEl = holder.querySelector('.track-title, .video-title');
+        const titleEl = holder.querySelector('.track-title, .video-title, .article-title');
         if (titleEl) titleEl.textContent = data.media.title;
         const descEl = holder.querySelector('.track-desc');
         if (descEl) descEl.textContent = data.media.description;
+        const textBody = holder.querySelector('.article-text');
+        if (textBody) textBody.textContent = data.media.textContent || data.media.description || '';
         // если раздел сменился — убираем элемент из текущего списка
         const screen = holder.closest('.screen');
         if (screen && screen.id !== 'screen-favorites' &&
@@ -245,7 +293,7 @@
         } catch (e) {
             return; // бэкенд недоступен — оставляем статический контент
         }
-        const container = screen.querySelector('.track-list, .video-list, .photo-grid, .cards-grid');
+        const container = screen.querySelector('.track-list, .video-list, .photo-grid, .cards-grid, .article-list');
         if (!container) return;
         // Сервер ответил — убираем прототипные плитки-заглушки в любом случае,
         // иначе их (без кнопки удаления) невозможно убрать из пустого раздела.
@@ -253,7 +301,9 @@
             container.innerHTML = '<div class="empty-note">Пока пусто</div>';
             return;
         }
-        const render = kind === 'track' ? renderTrack : kind === 'video' ? renderVideo : renderPhoto;
+        const render = kind === 'track' ? renderTrack
+            : kind === 'video' ? renderVideo
+                : kind === 'text' ? renderText : renderPhoto;
         container.innerHTML = data.media.map(render).join('');
     }
 
@@ -270,13 +320,28 @@
             (item.tags && item.tags.length
                 ? '<span class="search-tags">' + item.tags.map(t => '#' + esc(t)).join(' ') + '</span>' : '') +
             '</div>' +
-            (item.type === 'photo'
-                ? '<img class="fav-photo" src="' + esc(item.url) + '" data-full="' + esc(item.url) + '" title="Открыть в полном размере" alt="">'
-                : item.type === 'video'
-                    ? '<div class="video-thumb video-thumb-player"><video controls preload="metadata" src="' + esc(item.url) + '#t=0.001"></video></div>'
-                    : '<audio class="media-audio" controls preload="none" src="' + esc(item.url) + '"></audio>') +
+            searchMediaBlock(item) +
             '<div class="track-controls">' + heartBtn(item) + commentBtn(item) + adminBtns(item) + '</div>' +
             commentsBlock(item) + '</div>';
+    }
+
+    function searchMediaBlock(item) {
+        if (item.type === 'photo') {
+            return '<img class="fav-photo" src="' + esc(item.url) + '" data-full="' + esc(item.url) +
+                '" title="Открыть в полном размере" alt="">';
+        }
+        if (item.type === 'video') {
+            return '<div class="video-thumb video-thumb-player"><video controls preload="metadata" src="' +
+                esc(item.url) + '#t=0.001"></video></div>';
+        }
+        if (item.type === 'text') {
+            const text = item.textContent || item.description || '';
+            return (item.url
+                ? '<img class="article-cover" src="' + esc(item.url) + '" data-full="' + esc(item.url) +
+                  '" title="Открыть в полном размере" alt="">' : '') +
+                '<div class="article-text article-text-fold">' + esc(text) + '</div>';
+        }
+        return '<audio class="media-audio" controls preload="none" src="' + esc(item.url) + '"></audio>';
     }
 
     let searchSeq = 0;
@@ -359,9 +424,7 @@
             '<div class="track-item" data-media-id="' + item.id + '">' +
             '<div class="track-title">' + esc(item.title) + '</div>' +
             '<div class="track-desc">' + esc(SECTION_TITLES[item.section] || item.section) + '</div>' +
-            (item.type === 'photo'
-                ? '<img class="fav-photo" src="' + esc(item.url) + '" data-full="' + esc(item.url) + '" title="Открыть в полном размере" alt="">'
-                : '<audio class="media-audio" controls preload="none" src="' + esc(item.url) + '"></audio>') +
+            searchMediaBlock(item) +
             '<div class="track-controls">' + heartBtn(item) + '</div>' +
             '</div>').join('');
     }
@@ -406,6 +469,17 @@
 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeLightbox();
+    });
+
+    // «Читать полностью» — разворачивание длинного текста
+    document.addEventListener('click', (e) => {
+        const toggle = e.target.closest('.js-text-toggle');
+        if (!toggle) return;
+        e.stopPropagation();
+        const body = toggle.closest('.article-item').querySelector('.article-text');
+        if (!body) return;
+        const folded = body.classList.toggle('article-text-fold');
+        toggle.textContent = folded ? 'Читать полностью' : 'Свернуть';
     });
 
     // ---------- лайки и комментарии (делегирование) ----------
@@ -540,13 +614,21 @@
         btn.addEventListener('click', async () => {
             const status = document.getElementById('upload-status');
             const fileInput = document.getElementById('upload-file');
+            const textEl = document.getElementById('upload-text');
+            const text = textEl ? textEl.value.trim() : '';
             const fd = new FormData();
             fd.append('section', document.getElementById('upload-section').value);
             fd.append('title', document.getElementById('upload-title').value.trim());
             fd.append('description', document.getElementById('upload-desc').value.trim());
             fd.append('tags', document.getElementById('upload-tags').value.trim());
-            if (!fileInput.files.length) { status.textContent = 'Выберите файл'; status.classList.add('error'); return; }
-            fd.append('file', fileInput.files[0]);
+            fd.append('text_content', text);
+            // файл нужен для медиа, но не для текстового поста — достаточно текста
+            if (!fileInput.files.length && !text) {
+                status.textContent = 'Выберите файл или введите текст публикации';
+                status.classList.add('error');
+                return;
+            }
+            if (fileInput.files.length) fd.append('file', fileInput.files[0]);
             status.textContent = 'Загрузка...';
             status.classList.remove('error');
             try {
@@ -556,6 +638,7 @@
                 document.getElementById('upload-title').value = '';
                 document.getElementById('upload-desc').value = '';
                 document.getElementById('upload-tags').value = '';
+                if (textEl) textEl.value = '';
             } catch (err) {
                 status.textContent = err.message;
                 status.classList.add('error');

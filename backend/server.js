@@ -88,6 +88,7 @@ function mediaWithMeta(row, userId) {
         section: row.section,
         type: row.type,
         url: row.url,
+        textContent: row.text_content || '',
         tags: row.tags ? row.tags.split(',') : [],
         createdAt: row.created_at,
         likeCount,
@@ -159,18 +160,30 @@ app.get('/api/auth/me', auth(), (req, res) => {
 // ---------- media routes ----------
 
 app.post('/api/media/upload', auth(), adminOnly, upload.single('file'), (req, res) => {
-    if (!req.file) return res.status(400).json({ error: 'Файл не получен' });
     const { section, title, description, tags } = req.body || {};
+    const textContent = String((req.body || {}).text_content || '').trim();
     if (!section || !title) {
-        fs.unlink(req.file.path, () => {});
+        if (req.file) fs.unlink(req.file.path, () => {});
         return res.status(400).json({ error: 'Укажите раздел и название' });
     }
-    const type = mediaTypeOf(req.file.mimetype);
-    const subdir = type === 'photo' ? 'Photos' : 'Videos';
-    const url = `/media/${subdir}/${req.file.filename}`;
+    if (!req.file && !textContent) {
+        return res.status(400).json({ error: 'Добавьте файл или текст публикации' });
+    }
+    // type='text' — текстовый пост (с картинкой-обложкой, если приложена);
+    // иначе обычное медиа (фото/видео/аудио).
+    let type, filename = '', url = '';
+    if (req.file) {
+        const fileType = mediaTypeOf(req.file.mimetype);
+        const subdir = fileType === 'photo' ? 'Photos' : 'Videos';
+        filename = req.file.filename;
+        url = `/media/${subdir}/${filename}`;
+        type = (textContent && fileType === 'photo') ? 'text' : fileType;
+    } else {
+        type = 'text';
+    }
     const info = db.prepare(
-        'INSERT INTO media (title, description, section, type, filename, url, tags, uploaded_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-    ).run(title.trim(), (description || '').trim(), section.trim(), type, req.file.filename, url, normalizeTags(tags), req.user.id);
+        'INSERT INTO media (title, description, section, type, filename, url, tags, text_content, uploaded_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    ).run(title.trim(), (description || '').trim(), section.trim(), type, filename, url, normalizeTags(tags), textContent, req.user.id);
     const row = db.prepare('SELECT * FROM media WHERE id = ?').get(info.lastInsertRowid);
     res.status(201).json({ media: mediaWithMeta(row, req.user.id) });
 });
@@ -196,14 +209,15 @@ app.get('/api/media/:section', auth(false), (req, res) => {
 app.patch('/api/media/:id', auth(), adminOnly, (req, res) => {
     const row = db.prepare('SELECT * FROM media WHERE id = ?').get(req.params.id);
     if (!row) return res.status(404).json({ error: 'Медиа не найдено' });
-    const { title, description, section, tags } = req.body || {};
+    const { title, description, section, tags, text_content } = req.body || {};
     const newTitle = title !== undefined ? String(title).trim() : row.title;
     if (!newTitle) return res.status(400).json({ error: 'Название не может быть пустым' });
     const newDesc = description !== undefined ? String(description).trim() : row.description;
     const newSection = section !== undefined && String(section).trim() ? String(section).trim() : row.section;
     const newTags = tags !== undefined ? normalizeTags(tags) : row.tags;
-    db.prepare('UPDATE media SET title = ?, description = ?, section = ?, tags = ? WHERE id = ?')
-        .run(newTitle, newDesc, newSection, newTags, row.id);
+    const newText = text_content !== undefined ? String(text_content).trim() : row.text_content;
+    db.prepare('UPDATE media SET title = ?, description = ?, section = ?, tags = ?, text_content = ? WHERE id = ?')
+        .run(newTitle, newDesc, newSection, newTags, newText, row.id);
     const updated = db.prepare('SELECT * FROM media WHERE id = ?').get(row.id);
     res.json({ media: mediaWithMeta(updated, req.user.id) });
 });
@@ -212,8 +226,11 @@ app.delete('/api/media/:id', auth(), adminOnly, (req, res) => {
     const row = db.prepare('SELECT * FROM media WHERE id = ?').get(req.params.id);
     if (!row) return res.status(404).json({ error: 'Медиа не найдено' });
     db.prepare('DELETE FROM media WHERE id = ?').run(row.id);
-    const filePath = path.join(row.type === 'photo' ? PHOTOS_DIR : VIDEOS_DIR, row.filename);
-    fs.unlink(filePath, () => {});
+    // текстовые посты могут быть без файла; каталог определяем по url
+    if (row.filename) {
+        const dir = row.url.includes('/Photos/') ? PHOTOS_DIR : VIDEOS_DIR;
+        fs.unlink(path.join(dir, row.filename), () => {});
+    }
     res.json({ ok: true });
 });
 

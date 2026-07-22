@@ -22,16 +22,17 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE TABLE IF NOT EXISTS media (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    title       TEXT NOT NULL,
-    description TEXT NOT NULL DEFAULT '',
-    section     TEXT NOT NULL,
-    type        TEXT NOT NULL CHECK (type IN ('photo', 'video', 'audio')),
-    filename    TEXT NOT NULL,
-    url         TEXT NOT NULL,
-    tags        TEXT NOT NULL DEFAULT '',
-    uploaded_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
-    created_at  TEXT NOT NULL DEFAULT (datetime('now'))
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    title        TEXT NOT NULL,
+    description  TEXT NOT NULL DEFAULT '',
+    section      TEXT NOT NULL,
+    type         TEXT NOT NULL CHECK (type IN ('photo', 'video', 'audio', 'text')),
+    filename     TEXT NOT NULL DEFAULT '',
+    url          TEXT NOT NULL DEFAULT '',
+    tags         TEXT NOT NULL DEFAULT '',
+    text_content TEXT NOT NULL DEFAULT '',
+    uploaded_by  INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    created_at   TEXT NOT NULL DEFAULT (datetime('now'))
 );
 CREATE INDEX IF NOT EXISTS idx_media_section ON media(section);
 
@@ -53,10 +54,48 @@ CREATE INDEX IF NOT EXISTS idx_comments_media ON comments(media_id);
 `);
 
 // Миграция для баз, созданных до появления тегов
-const mediaCols = db.prepare('PRAGMA table_info(media)').all();
+let mediaCols = db.prepare('PRAGMA table_info(media)').all();
 if (!mediaCols.some(c => c.name === 'tags')) {
     db.exec("ALTER TABLE media ADD COLUMN tags TEXT NOT NULL DEFAULT ''");
     console.log('[db] migrated: added media.tags column');
+    mediaCols = db.prepare('PRAGMA table_info(media)').all();
+}
+
+// Миграция для текстовых постов: старый CHECK(type IN photo/video/audio) не пускает
+// type='text', а SQLite не умеет менять CHECK через ALTER TABLE — пересобираем таблицу
+// (сохраняя данные и внешние ключи) один раз, по отсутствию колонки text_content.
+if (!mediaCols.some(c => c.name === 'text_content')) {
+    db.pragma('foreign_keys = OFF');
+    db.exec('BEGIN');
+    try {
+        db.exec(`
+            CREATE TABLE media_new (
+                id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                title        TEXT NOT NULL,
+                description  TEXT NOT NULL DEFAULT '',
+                section      TEXT NOT NULL,
+                type         TEXT NOT NULL CHECK (type IN ('photo', 'video', 'audio', 'text')),
+                filename     TEXT NOT NULL DEFAULT '',
+                url          TEXT NOT NULL DEFAULT '',
+                tags         TEXT NOT NULL DEFAULT '',
+                text_content TEXT NOT NULL DEFAULT '',
+                uploaded_by  INTEGER REFERENCES users(id) ON DELETE SET NULL,
+                created_at   TEXT NOT NULL DEFAULT (datetime('now'))
+            );
+            INSERT INTO media_new (id, title, description, section, type, filename, url, tags, uploaded_by, created_at)
+                SELECT id, title, description, section, type, filename, url, tags, uploaded_by, created_at FROM media;
+            DROP TABLE media;
+            ALTER TABLE media_new RENAME TO media;
+            CREATE INDEX IF NOT EXISTS idx_media_section ON media(section);
+        `);
+        db.exec('COMMIT');
+        console.log('[db] migrated: rebuilt media table with text_content + text type');
+    } catch (e) {
+        db.exec('ROLLBACK');
+        db.pragma('foreign_keys = ON');
+        throw e;
+    }
+    db.pragma('foreign_keys = ON');
 }
 
 function seedAdmin() {

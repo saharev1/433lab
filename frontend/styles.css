@@ -1084,3 +1084,62 @@ select.form-input {
 .lightbox-close:hover {
     background: rgba(255, 255, 255, 0.3);
 }
+
+/* ============================================== */
+/* Текстовые посты (Читать / Учить / Идеи) */
+/* ============================================== */
+
+.article-cover {
+    width: 100%;
+    max-height: 420px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-bottom: 18px;
+    cursor: zoom-in;
+    display: block;
+}
+
+/* свёрнутый длинный текст */
+.article-text-fold {
+    display: -webkit-box;
+    -webkit-line-clamp: 8;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.article-more {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: -18px 0 24px;
+    color: var(--text-muted);
+    text-decoration: underline;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.article-more:hover {
+    color: var(--text-dark);
+}
+
+.article-tags {
+    color: var(--text-muted);
+    font-size: 13px;
+    margin-bottom: 18px;
+}
+
+/* поле ввода текста в форме загрузки и редактирования */
+#upload-text,
+.edit-text {
+    resize: vertical;
+    min-height: 90px;
+    line-height: 1.6;
+    font-family: inherit;
+}
+
+.form-hint {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin: -6px 0 4px;
+}

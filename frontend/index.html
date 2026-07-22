@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>4:33</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=10">
+    <link rel="stylesheet" href="styles.css?v=11">
 </head>
 
 <body>
@@ -577,6 +577,55 @@
         </div>
 
 
+        <!-- ЧИТАТЬ - СКАЗКИ -->
+        <div id="screen-read-tales" class="screen screen-light">
+            <div class="header">
+                <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24">
+                        <path d="M9 14L4 9l5-5" />
+                        <path d="M4 9h10.5A5.5 5.5 0 0 1 20 14.5v0A5.5 5.5 0 0 1 14.5 20H11" />
+                    </svg></button>
+                <div class="header-title">СКАЗКИ</div>
+            </div>
+            <div class="search-box-wrapper light-search"><svg class="search-icon" viewBox="0 0 24 24">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg><input type="text" class="search-input" placeholder="ПОИСК"></div>
+            <div class="article-list"></div>
+        </div>
+
+        <!-- ЧИТАТЬ - МЫСЛИ -->
+        <div id="screen-read-thoughts" class="screen screen-light">
+            <div class="header">
+                <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24">
+                        <path d="M9 14L4 9l5-5" />
+                        <path d="M4 9h10.5A5.5 5.5 0 0 1 20 14.5v0A5.5 5.5 0 0 1 14.5 20H11" />
+                    </svg></button>
+                <div class="header-title">МЫСЛИ</div>
+            </div>
+            <div class="search-box-wrapper light-search"><svg class="search-icon" viewBox="0 0 24 24">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg><input type="text" class="search-input" placeholder="ПОИСК"></div>
+            <div class="article-list"></div>
+        </div>
+
+        <!-- ЧИТАТЬ - СТАТЬИ -->
+        <div id="screen-read-articles" class="screen screen-light">
+            <div class="header">
+                <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24">
+                        <path d="M9 14L4 9l5-5" />
+                        <path d="M4 9h10.5A5.5 5.5 0 0 1 20 14.5v0A5.5 5.5 0 0 1 14.5 20H11" />
+                    </svg></button>
+                <div class="header-title">СТАТЬИ</div>
+            </div>
+            <div class="search-box-wrapper light-search"><svg class="search-icon" viewBox="0 0 24 24">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg><input type="text" class="search-input" placeholder="ПОИСК"></div>
+            <div class="article-list"></div>
+        </div>
+
+
         <!-- ============================================== -->
         <!-- УЧИТЬ СЕКЦИЯ -->
         <!-- ============================================== -->
@@ -626,6 +675,23 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+
+        <!-- УЧИТЬ - СТАТЬИ -->
+        <div id="screen-learn-articles" class="screen screen-light">
+            <div class="header">
+                <button class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24">
+                        <path d="M9 14L4 9l5-5" />
+                        <path d="M4 9h10.5A5.5 5.5 0 0 1 20 14.5v0A5.5 5.5 0 0 1 14.5 20H11" />
+                    </svg></button>
+                <div class="header-title">СТАТЬИ</div>
+            </div>
+            <div class="search-box-wrapper light-search"><svg class="search-icon" viewBox="0 0 24 24">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg><input type="text" class="search-input" placeholder="ПОИСК"></div>
+            <div class="article-list"></div>
         </div>
 
 
@@ -775,20 +841,42 @@
             </div>
             <div class="form-container">
                 <select class="form-input" id="upload-section">
-                    <option value="listen-tales">Слушать / Сказки</option>
-                    <option value="listen-music">Слушать / Музыка</option>
-                    <option value="listen-poems">Слушать / Стихи</option>
-                    <option value="watch-clips">Смотреть / Клипы</option>
-                    <option value="watch-docs">Смотреть / Докфильм</option>
-                    <option value="watch-vids">Смотреть / Ролики</option>
-                    <option value="watch-photo">Смотреть / Фото</option>
-                    <option value="watch-pics">Смотреть / Картинки</option>
+                    <optgroup label="Слушать (аудио)">
+                        <option value="listen-tales">Слушать / Сказки</option>
+                        <option value="listen-music">Слушать / Музыка</option>
+                        <option value="listen-poems">Слушать / Стихи</option>
+                    </optgroup>
+                    <optgroup label="Смотреть (видео/фото)">
+                        <option value="watch-clips">Смотреть / Клипы</option>
+                        <option value="watch-docs">Смотреть / Докфильм</option>
+                        <option value="watch-vids">Смотреть / Ролики</option>
+                        <option value="watch-photo">Смотреть / Фото</option>
+                        <option value="watch-pics">Смотреть / Картинки</option>
+                    </optgroup>
+                    <optgroup label="Читать (текст)">
+                        <option value="read-poems">Читать / Стихи</option>
+                        <option value="read-prose">Читать / Проза</option>
+                        <option value="read-scripts">Читать / Сценарии</option>
+                        <option value="read-tales">Читать / Сказки</option>
+                        <option value="read-thoughts">Читать / Мысли</option>
+                        <option value="read-articles">Читать / Статьи</option>
+                    </optgroup>
+                    <optgroup label="Учить (текст)">
+                        <option value="learn-guides">Учить / Гайды</option>
+                        <option value="learn-articles">Учить / Статьи</option>
+                    </optgroup>
+                    <optgroup label="Идеи (текст)">
+                        <option value="ideas">Идеи</option>
+                    </optgroup>
                 </select>
                 <input type="text" class="form-input" id="upload-title" placeholder="Название">
-                <input type="text" class="form-input" id="upload-desc" placeholder="Описание">
+                <input type="text" class="form-input" id="upload-desc" placeholder="Описание (кратко)">
+                <textarea class="form-input" id="upload-text" rows="6"
+                    placeholder="Текст публикации — для разделов Читать / Учить / Идеи (для медиа можно оставить пустым)"></textarea>
                 <input type="text" class="form-input" id="upload-tags" placeholder="Теги через запятую (для поиска)">
                 <input type="file" class="form-input form-file" id="upload-file"
                     accept="image/*,video/*,audio/*">
+                <div class="form-hint">Для медиа выберите файл. Для текстового поста файл не нужен — достаточно заполнить «Текст публикации» (картинку можно приложить как обложку).</div>
                 <button class="form-btn" id="upload-submit">Загрузить</button>
                 <div class="form-status" id="upload-status"></div>
             </div>
@@ -798,7 +886,7 @@
     </div> <!-- end app-container -->
 
     <script src="app.js?v=2"></script>
-    <script src="api.js?v=3"></script>
+    <script src="api.js?v=4"></script>
 </body>
 
 </html>
