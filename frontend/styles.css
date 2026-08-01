@@ -814,6 +814,27 @@ select.form-input {
     display: block;
 }
 
+/* Полноэкранный режим: браузер принудительно растягивает <video> на весь экран
+   (width/height через !important), но object-fit не сбрасывает — наш cover остаётся
+   и обрезает кадр на мониторах, чьё соотношение сторон отличается от видео
+   (ultrawide 21:9 и т.п.). Вписываем кадр целиком, поля заливаем чёрным.
+   Правила разделены: браузер отбрасывает всю группу селекторов, если хотя бы один
+   ему неизвестен. */
+.video-thumb video:-webkit-full-screen {
+    object-fit: contain;
+    background: #000;
+}
+
+.video-thumb video:-moz-full-screen {
+    object-fit: contain;
+    background: #000;
+}
+
+.video-thumb video:fullscreen {
+    object-fit: contain;
+    background: #000;
+}
+
 .video-actions {
     display: flex;
     gap: 10px;
