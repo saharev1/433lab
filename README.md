@@ -6,7 +6,7 @@
 
 ```
 ├── frontend/            # статика сайта
-│   ├── assets/          # изображения (bg.png, logo.png, logo433.png)
+│   ├── assets/          # изображения (bg.png, logo-vedma.svg, logo433.png)
 │   ├── index.html
 │   ├── styles.css
 │   ├── app.js           # навигация и анимации экранов
