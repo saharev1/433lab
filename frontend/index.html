@@ -9,7 +9,9 @@
     <link rel="icon" type="image/png" href="assets/favicon-32.png?v=1" sizes="32x32">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=1">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=12">
+    <!-- стили редактора статей — до styles.css, чтобы наши правила их перекрывали -->
+    <link rel="stylesheet" href="assets/vendor/quill.snow.css">
+    <link rel="stylesheet" href="styles.css?v=13">
 </head>
 
 <body>
@@ -911,8 +913,8 @@
                     placeholder="Текст публикации — для разделов Читать / Учить / Идеи (для медиа можно оставить пустым)"></textarea>
                 <input type="text" class="form-input" id="upload-tags" placeholder="Теги через запятую (для поиска)">
                 <input type="file" class="form-input form-file" id="upload-file"
-                    accept="image/*,video/*,audio/*">
-                <div class="form-hint">Для медиа выберите файл. Для текстового поста файл не нужен — достаточно заполнить «Текст публикации» (картинку можно приложить как обложку).</div>
+                    accept="image/*,video/*,audio/*,application/pdf,.pdf">
+                <div class="form-hint">Для медиа выберите файл. Для текстового поста файл не нужен — достаточно заполнить «Текст публикации» (картинку можно приложить как обложку). PDF выкладывается карточкой с кнопкой «Скачать»; текст к нему станет пояснением.</div>
                 <button class="form-btn" id="upload-submit">Загрузить</button>
                 <div class="form-status" id="upload-status"></div>
             </div>
@@ -921,8 +923,12 @@
 
     </div> <!-- end app-container -->
 
+    <!-- Quill — визуальный редактор статей, DOMPurify — чистка разметки перед выводом.
+         Оба лежат локально в assets/vendor, внешние CDN не нужны. -->
+    <script src="assets/vendor/quill.min.js"></script>
+    <script src="assets/vendor/purify.min.js"></script>
     <script src="app.js?v=2"></script>
-    <script src="api.js?v=4"></script>
+    <script src="api.js?v=5"></script>
 </body>
 
 </html>

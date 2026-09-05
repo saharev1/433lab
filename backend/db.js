@@ -26,11 +26,13 @@ CREATE TABLE IF NOT EXISTS media (
     title        TEXT NOT NULL,
     description  TEXT NOT NULL DEFAULT '',
     section      TEXT NOT NULL,
-    type         TEXT NOT NULL CHECK (type IN ('photo', 'video', 'audio', 'text')),
+    type         TEXT NOT NULL CHECK (type IN ('photo', 'video', 'audio', 'text', 'doc')),
     filename     TEXT NOT NULL DEFAULT '',
     url          TEXT NOT NULL DEFAULT '',
     tags         TEXT NOT NULL DEFAULT '',
     text_content TEXT NOT NULL DEFAULT '',
+    text_format  TEXT NOT NULL DEFAULT 'plain' CHECK (text_format IN ('plain', 'html')),
+    file_size    INTEGER NOT NULL DEFAULT 0,
     uploaded_by  INTEGER REFERENCES users(id) ON DELETE SET NULL,
     created_at   TEXT NOT NULL DEFAULT (datetime('now'))
 );
@@ -90,6 +92,48 @@ if (!mediaCols.some(c => c.name === 'text_content')) {
         `);
         db.exec('COMMIT');
         console.log('[db] migrated: rebuilt media table with text_content + text type');
+    } catch (e) {
+        db.exec('ROLLBACK');
+        db.pragma('foreign_keys = ON');
+        throw e;
+    }
+    db.pragma('foreign_keys = ON');
+}
+
+// Миграция под PDF-документы (type='doc') и статьи с разметкой:
+// старый CHECK не пропускает 'doc', а CHECK через ALTER TABLE в SQLite не меняется —
+// пересобираем таблицу так же, как это делалось для текстовых постов.
+// Признак старой схемы — в тексте CREATE TABLE нет 'doc'. Существующие статьи
+// получают text_format='plain' по умолчанию, т.е. продолжают выводиться как обычный текст.
+const mediaSchema = db.prepare("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'media'").get();
+if (mediaSchema && !mediaSchema.sql.includes("'doc'")) {
+    db.pragma('foreign_keys = OFF');
+    db.exec('BEGIN');
+    try {
+        db.exec(`
+            CREATE TABLE media_new (
+                id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                title        TEXT NOT NULL,
+                description  TEXT NOT NULL DEFAULT '',
+                section      TEXT NOT NULL,
+                type         TEXT NOT NULL CHECK (type IN ('photo', 'video', 'audio', 'text', 'doc')),
+                filename     TEXT NOT NULL DEFAULT '',
+                url          TEXT NOT NULL DEFAULT '',
+                tags         TEXT NOT NULL DEFAULT '',
+                text_content TEXT NOT NULL DEFAULT '',
+                text_format  TEXT NOT NULL DEFAULT 'plain' CHECK (text_format IN ('plain', 'html')),
+                file_size    INTEGER NOT NULL DEFAULT 0,
+                uploaded_by  INTEGER REFERENCES users(id) ON DELETE SET NULL,
+                created_at   TEXT NOT NULL DEFAULT (datetime('now'))
+            );
+            INSERT INTO media_new (id, title, description, section, type, filename, url, tags, text_content, uploaded_by, created_at)
+                SELECT id, title, description, section, type, filename, url, tags, text_content, uploaded_by, created_at FROM media;
+            DROP TABLE media;
+            ALTER TABLE media_new RENAME TO media;
+            CREATE INDEX IF NOT EXISTS idx_media_section ON media(section);
+        `);
+        db.exec('COMMIT');
+        console.log('[db] migrated: rebuilt media table with doc type, text_format and file_size');
     } catch (e) {
         db.exec('ROLLBACK');
         db.pragma('foreign_keys = ON');

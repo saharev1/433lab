@@ -7,6 +7,7 @@
 ```
 ├── frontend/            # статика сайта
 │   ├── assets/          # изображения (bg.png, logo-vedma.svg, logo433.png)
+│   │   └── vendor/      # Quill (редактор статей) и DOMPurify — локально, без CDN
 │   ├── index.html
 │   ├── styles.css
 │   ├── app.js           # навигация и анимации экранов
@@ -34,4 +35,18 @@ docker compose up -d --build
 Сайт — на порту 6060. Переменные окружения бэкенда (задать в проде):
 `JWT_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` (дефолт: `admin@433lab.local` / `admin433`).
 
-Файлы медиа хранятся в volume `media` (`/media/Photos`, `/media/Videos`), база SQLite — в volume `dbdata`.
+Файлы медиа хранятся в volume `media` (`/media/Photos`, `/media/Videos`, `/media/Docs` — PDF),
+база SQLite — в volume `dbdata`.
+
+## Публикации
+
+| тип | что это | как создаётся |
+|-----|---------|---------------|
+| `photo` / `video` / `audio` | медиафайл | загрузить файл |
+| `text` | статья; `text_format` = `plain` (старые) или `html` (набранные в редакторе) | заполнить текст публикации |
+| `doc` | PDF: карточка с кнопкой «Скачать», текст к нему — пояснение | загрузить `.pdf` |
+
+Статьи набираются визуальным редактором (Quill): заголовки, списки, цитаты, ссылки
+и картинки прямо в тексте. Картинки уходят на сервер через `POST /api/upload/inline`
+(только админ, только изображения) и вставляются ссылкой на `/media/Photos/...`.
+Перед выводом на страницу разметка чистится DOMPurify по белому списку тегов в `api.js`.

@@ -1164,3 +1164,218 @@ select.form-input {
     line-height: 1.5;
     margin: -6px 0 4px;
 }
+
+/* ========================================
+   Статьи с разметкой
+   ======================================== */
+
+/* У обычного текста переносы строк держит white-space: pre-line, а размеченной
+   статье он ломает вёрстку — здесь абзацы задают уже сами теги. */
+.article-html {
+    white-space: normal;
+}
+
+.article-html > *:first-child { margin-top: 0; }
+.article-html > *:last-child { margin-bottom: 0; }
+
+.article-html p { margin: 0 0 1em; }
+
+.article-html h1,
+.article-html h2,
+.article-html h3,
+.article-html h4 {
+    font-weight: 400;
+    line-height: 1.3;
+    margin: 1.6em 0 0.6em;
+}
+
+.article-html h1 { font-size: 26px; }
+.article-html h2 { font-size: 22px; }
+.article-html h3 { font-size: 19px; }
+.article-html h4 { font-size: 17px; }
+
+/* Картинка в тексте показывается целиком, без обрезки, но с потолком по высоте —
+   иначе вертикальная афиша занимает несколько экранов и рвёт чтение. */
+.article-html img {
+    display: block;
+    max-width: 100%;
+    max-height: 560px;
+    width: auto;
+    height: auto;
+    border-radius: 6px;
+    margin: 20px auto;
+}
+
+.article-html a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.article-html ul,
+.article-html ol {
+    margin: 0 0 1em;
+    padding-left: 1.4em;
+}
+
+.article-html li { margin-bottom: 0.4em; }
+
+.article-html blockquote {
+    margin: 1.2em 0;
+    padding-left: 16px;
+    border-left: 2px solid rgba(0, 0, 0, 0.25);
+    color: var(--text-muted);
+}
+
+.article-html pre,
+.article-html code {
+    font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+    font-size: 14px;
+}
+
+.article-html pre {
+    overflow-x: auto;
+    padding: 12px 14px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 6px;
+}
+
+.article-html hr {
+    border: none;
+    border-top: 1px solid rgba(0, 0, 0, 0.2);
+    margin: 1.6em 0;
+}
+
+/* Свёрнутый вид. Обычный текст обрезается по строкам (-webkit-line-clamp выше),
+   но в размеченной статье внутри лежат блоки и картинки — там ограничение по
+   строкам не работает, поэтому режем по высоте и притеняем нижний край. */
+.article-html.article-text-fold {
+    display: block;
+    -webkit-line-clamp: none;
+    max-height: 320px;
+    overflow: hidden;
+    position: relative;
+}
+
+.article-html.article-text-fold::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 70px;
+    background: linear-gradient(to bottom, rgba(235, 234, 232, 0), var(--bg-light));
+    pointer-events: none;
+}
+
+/* ========================================
+   Документы (PDF)
+   ======================================== */
+
+.doc-main {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    margin-bottom: 18px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--text-dark);
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.doc-main:hover {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.4);
+}
+
+.doc-icon {
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+    fill: none;
+    stroke: var(--text-dark);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.doc-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.doc-name {
+    font-size: 16px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.doc-meta {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+/* Название публикации уже стоит над карточкой — в самой карточке оно лишнее */
+.doc-item .doc-name { display: none; }
+.doc-item .doc-lines { gap: 0; }
+
+/* ========================================
+   Визуальный редактор статей (Quill)
+   ======================================== */
+
+.form-editor,
+.edit-text-holder {
+    display: flex;
+    flex-direction: column;
+}
+
+.ql-toolbar.ql-snow,
+.ql-container.ql-snow {
+    border-color: rgba(0, 0, 0, 0.3);
+}
+
+.ql-toolbar.ql-snow {
+    border-radius: 4px 4px 0 0;
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.ql-container.ql-snow {
+    border-radius: 0 0 4px 4px;
+    font-family: var(--font-family);
+    font-size: 16px;
+}
+
+.ql-editor {
+    min-height: 220px;
+    max-height: 55vh;
+    overflow-y: auto;
+    line-height: 1.7;
+}
+
+.ql-editor.ql-blank::before {
+    color: var(--text-muted);
+    font-style: normal;
+}
+
+.ql-snow .ql-stroke { stroke: var(--text-dark); }
+.ql-snow .ql-fill { fill: var(--text-dark); }
+.ql-snow .ql-picker { color: var(--text-dark); }
+
+/* В самом редакторе картинку показываем уменьшенной, иначе одна вертикальная
+   фотография занимает всё окно набора и до кнопки «Сохранить» не доскроллить */
+.ql-editor img {
+    max-width: 100%;
+    max-height: 260px;
+    width: auto;
+    height: auto;
+    border-radius: 6px;
+}
+
+@media (max-width: 768px) {
+    .ql-editor { min-height: 160px; }
+}

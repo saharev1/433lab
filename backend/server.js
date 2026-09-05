@@ -14,11 +14,14 @@ const MEDIA_DIR = process.env.MEDIA_DIR || path.join(__dirname, 'media');
 
 const PHOTOS_DIR = path.join(MEDIA_DIR, 'Photos');
 const VIDEOS_DIR = path.join(MEDIA_DIR, 'Videos');
+const DOCS_DIR = path.join(MEDIA_DIR, 'Docs');
 fs.mkdirSync(PHOTOS_DIR, { recursive: true });
 fs.mkdirSync(VIDEOS_DIR, { recursive: true });
+fs.mkdirSync(DOCS_DIR, { recursive: true });
 
 const app = express();
-app.use(express.json());
+// Статья с разметкой уходит в PATCH одним JSON-полем; дефолтных 100 КБ на неё мало.
+app.use(express.json({ limit: '2mb' }));
 
 // Uploaded files are served under /media/* (nginx proxies this path here)
 app.use('/media', express.static(MEDIA_DIR));
@@ -72,7 +75,15 @@ function mediaTypeOf(mimetype) {
     if (mimetype.startsWith('image/')) return 'photo';
     if (mimetype.startsWith('video/')) return 'video';
     if (mimetype.startsWith('audio/')) return 'audio';
+    if (mimetype === 'application/pdf') return 'doc';
     return null;
+}
+
+// Каталог внутри MEDIA_DIR, в котором лежит файл этого типа
+function subdirOf(type) {
+    if (type === 'photo') return 'Photos';
+    if (type === 'doc') return 'Docs';
+    return 'Videos';
 }
 
 function mediaWithMeta(row, userId) {
@@ -89,6 +100,8 @@ function mediaWithMeta(row, userId) {
         type: row.type,
         url: row.url,
         textContent: row.text_content || '',
+        textFormat: row.text_format || 'plain',
+        fileSize: row.file_size || 0,
         tags: row.tags ? row.tags.split(',') : [],
         createdAt: row.created_at,
         likeCount,
@@ -101,9 +114,9 @@ function mediaWithMeta(row, userId) {
 
 const storage = multer.diskStorage({
     destination(req, file, cb) {
-        // Per spec, files live strictly under /media/Photos or /media/Videos
-        const type = mediaTypeOf(file.mimetype);
-        cb(null, type === 'photo' ? PHOTOS_DIR : VIDEOS_DIR);
+        // Медиа лежит в /media/Photos и /media/Videos, PDF — в /media/Docs
+        const sub = subdirOf(mediaTypeOf(file.mimetype));
+        cb(null, sub === 'Photos' ? PHOTOS_DIR : sub === 'Docs' ? DOCS_DIR : VIDEOS_DIR);
     },
     filename(req, file, cb) {
         const ext = path.extname(file.originalname).toLowerCase().slice(0, 10) || '';
@@ -116,7 +129,21 @@ const upload = multer({
     limits: { fileSize: 500 * 1024 * 1024 },
     fileFilter(req, file, cb) {
         if (!mediaTypeOf(file.mimetype)) {
-            return cb(new Error('Разрешены только фото, видео и аудио'));
+            return cb(new Error('Разрешены только фото, видео, аудио и PDF'));
+        }
+        cb(null, true);
+    }
+});
+
+// Отдельный загрузчик для картинок, которые редактор вставляет прямо в текст статьи.
+// Файл кладётся в общий каталог Photos, но строкой в media не становится —
+// это иллюстрация внутри публикации, а не самостоятельный пост.
+const inlineUpload = multer({
+    storage,
+    limits: { fileSize: 20 * 1024 * 1024 },
+    fileFilter(req, file, cb) {
+        if (mediaTypeOf(file.mimetype) !== 'photo') {
+            return cb(new Error('В текст можно вставлять только картинки'));
         }
         cb(null, true);
     }
@@ -169,23 +196,32 @@ app.post('/api/media/upload', auth(), adminOnly, upload.single('file'), (req, re
     if (!req.file && !textContent) {
         return res.status(400).json({ error: 'Добавьте файл или текст публикации' });
     }
+    // type='doc'  — PDF-документ для скачивания (текст, если он есть, идёт аннотацией);
     // type='text' — текстовый пост (с картинкой-обложкой, если приложена);
     // иначе обычное медиа (фото/видео/аудио).
-    let type, filename = '', url = '';
+    let type, filename = '', url = '', fileSize = 0;
     if (req.file) {
         const fileType = mediaTypeOf(req.file.mimetype);
-        const subdir = fileType === 'photo' ? 'Photos' : 'Videos';
         filename = req.file.filename;
-        url = `/media/${subdir}/${filename}`;
-        type = (textContent && fileType === 'photo') ? 'text' : fileType;
+        url = `/media/${subdirOf(fileType)}/${filename}`;
+        fileSize = req.file.size || 0;
+        type = fileType === 'doc' ? 'doc'
+            : (textContent && fileType === 'photo') ? 'text' : fileType;
     } else {
         type = 'text';
     }
+    const textFormat = String((req.body || {}).text_format) === 'html' ? 'html' : 'plain';
     const info = db.prepare(
-        'INSERT INTO media (title, description, section, type, filename, url, tags, text_content, uploaded_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
-    ).run(title.trim(), (description || '').trim(), section.trim(), type, filename, url, normalizeTags(tags), textContent, req.user.id);
+        'INSERT INTO media (title, description, section, type, filename, url, tags, text_content, text_format, file_size, uploaded_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    ).run(title.trim(), (description || '').trim(), section.trim(), type, filename, url, normalizeTags(tags), textContent, textFormat, fileSize, req.user.id);
     const row = db.prepare('SELECT * FROM media WHERE id = ?').get(info.lastInsertRowid);
     res.status(201).json({ media: mediaWithMeta(row, req.user.id) });
+});
+
+// Картинка, вставляемая редактором в тело статьи: возвращаем только ссылку
+app.post('/api/upload/inline', auth(), adminOnly, inlineUpload.single('file'), (req, res) => {
+    if (!req.file) return res.status(400).json({ error: 'Файл не получен' });
+    res.status(201).json({ url: `/media/Photos/${req.file.filename}` });
 });
 
 // Поиск по названию, описанию и тегам (регистронезависимый, в т.ч. кириллица)
@@ -209,15 +245,18 @@ app.get('/api/media/:section', auth(false), (req, res) => {
 app.patch('/api/media/:id', auth(), adminOnly, (req, res) => {
     const row = db.prepare('SELECT * FROM media WHERE id = ?').get(req.params.id);
     if (!row) return res.status(404).json({ error: 'Медиа не найдено' });
-    const { title, description, section, tags, text_content } = req.body || {};
+    const { title, description, section, tags, text_content, text_format } = req.body || {};
     const newTitle = title !== undefined ? String(title).trim() : row.title;
     if (!newTitle) return res.status(400).json({ error: 'Название не может быть пустым' });
     const newDesc = description !== undefined ? String(description).trim() : row.description;
     const newSection = section !== undefined && String(section).trim() ? String(section).trim() : row.section;
     const newTags = tags !== undefined ? normalizeTags(tags) : row.tags;
     const newText = text_content !== undefined ? String(text_content).trim() : row.text_content;
-    db.prepare('UPDATE media SET title = ?, description = ?, section = ?, tags = ?, text_content = ? WHERE id = ?')
-        .run(newTitle, newDesc, newSection, newTags, newText, row.id);
+    const newFormat = text_format !== undefined
+        ? (String(text_format) === 'html' ? 'html' : 'plain')
+        : (row.text_format || 'plain');
+    db.prepare('UPDATE media SET title = ?, description = ?, section = ?, tags = ?, text_content = ?, text_format = ? WHERE id = ?')
+        .run(newTitle, newDesc, newSection, newTags, newText, newFormat, row.id);
     const updated = db.prepare('SELECT * FROM media WHERE id = ?').get(row.id);
     res.json({ media: mediaWithMeta(updated, req.user.id) });
 });
@@ -228,7 +267,8 @@ app.delete('/api/media/:id', auth(), adminOnly, (req, res) => {
     db.prepare('DELETE FROM media WHERE id = ?').run(row.id);
     // текстовые посты могут быть без файла; каталог определяем по url
     if (row.filename) {
-        const dir = row.url.includes('/Photos/') ? PHOTOS_DIR : VIDEOS_DIR;
+        const dir = row.url.includes('/Photos/') ? PHOTOS_DIR
+            : row.url.includes('/Docs/') ? DOCS_DIR : VIDEOS_DIR;
         fs.unlink(path.join(dir, row.filename), () => {});
     }
     res.json({ ok: true });

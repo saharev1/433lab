@@ -150,6 +150,185 @@
         return d.innerHTML;
     }
 
+    // ---------- статьи с разметкой: чистка и редактор ----------
+
+    // Текст статьи выводится на страницу как разметка, а не как экранированный текст,
+    // поэтому перед вставкой он обязательно проходит чистку: остаются только теги
+    // и атрибуты из этих списков, всё остальное (скрипты, обработчики, iframe) срезается.
+    const HTML_TAGS = ['p', 'br', 'hr', 'strong', 'b', 'em', 'i', 'u', 's', 'sub', 'sup',
+        'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'code',
+        'ol', 'ul', 'li', 'a', 'img', 'span', 'div'];
+    const HTML_ATTRS = ['href', 'target', 'rel', 'src', 'alt', 'title', 'class'];
+
+    function sanitizeHtml(html) {
+        if (window.DOMPurify) {
+            return DOMPurify.sanitize(String(html == null ? '' : html), {
+                ALLOWED_TAGS: HTML_TAGS,
+                ALLOWED_ATTR: HTML_ATTRS
+            });
+        }
+        // библиотека чистки не загрузилась — выводим как обычный текст, но не как разметку
+        return esc(html);
+    }
+
+    function htmlToText(html) {
+        const d = document.createElement('div');
+        d.innerHTML = sanitizeHtml(html);
+        return d.textContent || '';
+    }
+
+    // Старый пост, написанный обычным текстом, при открытии в редакторе разбиваем на абзацы
+    function plainToHtml(text) {
+        const parts = String(text || '').split(/\n{2,}/).filter(p => p.trim());
+        if (!parts.length) return '';
+        return parts.map(p => '<p>' + esc(p).replace(/\n/g, '<br>') + '</p>').join('');
+    }
+
+    // Quill пропускает в картинках только абсолютные http/https/data-адреса, а всё
+    // остальное заменяет заглушкой '//:0'. Наши иллюстрации лежат по относительному
+    // пути /media/Photos/..., поэтому такие адреса разрешаем явно; всё прочее
+    // по-прежнему проходит штатную проверку библиотеки.
+    if (window.Quill) {
+        const ImageBlot = Quill.import('formats/image');
+        const baseSanitize = ImageBlot.sanitize;
+        ImageBlot.sanitize = function (url) {
+            const u = String(url == null ? '' : url);
+            return /^\/(?!\/)/.test(u) ? u : baseSanitize.call(this, u);
+        };
+    }
+
+    const EDITOR_TOOLBAR = [
+        [{ header: [2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        ['blockquote', 'link', 'image'],
+        ['clean']
+    ];
+
+    async function uploadInlineImage(file) {
+        const fd = new FormData();
+        fd.append('file', file);
+        const data = await api('/api/upload/inline', { method: 'POST', body: fd });
+        return data.url;
+    }
+
+    function insertImageAt(quill, url, index) {
+        quill.insertEmbed(index, 'image', url, 'user');
+        quill.setSelection(index + 1, 0, 'silent');
+    }
+
+    // Позиция в тексте под курсором мыши — чтобы перетащенная картинка вставала туда,
+    // куда её бросили, а не в конец статьи
+    function indexAtPoint(quill, x, y) {
+        let range = null;
+        if (document.caretRangeFromPoint) {
+            range = document.caretRangeFromPoint(x, y);
+        } else if (document.caretPositionFromPoint) {
+            const pos = document.caretPositionFromPoint(x, y);
+            if (pos) {
+                range = document.createRange();
+                range.setStart(pos.offsetNode, pos.offset);
+            }
+        }
+        if (range && quill.root.contains(range.startContainer)) {
+            range.collapse(true);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            const r = quill.getSelection();
+            if (r) return r.index;
+        }
+        return Math.max(0, quill.getLength() - 1);
+    }
+
+    // Картинки, брошенные мышью или вставленные из буфера, отправляем на сервер и
+    // подставляем ссылку. Иначе Quill вклеил бы их в текст как base64 — статья на
+    // несколько мегабайт прямо в базе.
+    function wireEditorImages(quill) {
+        async function place(files, index) {
+            for (const file of files) {
+                if (!/^image\//.test(file.type)) continue;
+                try {
+                    insertImageAt(quill, await uploadInlineImage(file), index);
+                    index += 1;
+                } catch (err) { alert(err.message); }
+            }
+        }
+        quill.root.addEventListener('drop', (e) => {
+            const files = e.dataTransfer ? Array.from(e.dataTransfer.files || []) : [];
+            if (!files.some(f => /^image\//.test(f.type))) return;
+            e.preventDefault();
+            e.stopPropagation();
+            place(files, indexAtPoint(quill, e.clientX, e.clientY));
+        }, true);
+        quill.root.addEventListener('paste', (e) => {
+            const files = e.clipboardData ? Array.from(e.clipboardData.files || []) : [];
+            if (!files.some(f => /^image\//.test(f.type))) return;
+            e.preventDefault();
+            e.stopPropagation();
+            const sel = quill.getSelection();
+            place(files, sel ? sel.index : Math.max(0, quill.getLength() - 1));
+        }, true);
+    }
+
+    function pickImage(quill) {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.addEventListener('change', async () => {
+            const file = input.files && input.files[0];
+            if (!file) return;
+            try {
+                const sel = quill.getSelection(true);
+                insertImageAt(quill, await uploadInlineImage(file),
+                    sel ? sel.index : Math.max(0, quill.getLength() - 1));
+            } catch (err) { alert(err.message); }
+        });
+        input.click();
+    }
+
+    // Создаёт редактор внутри holder. Возвращает null, если библиотека не загрузилась —
+    // вызывающий код тогда остаётся на обычной textarea, и публикация всё равно работает.
+    function createEditor(holder, initialHtml) {
+        if (!window.Quill) return null;
+        const area = document.createElement('div');
+        area.className = 'rich-editor';
+        holder.appendChild(area);
+        let quill;
+        quill = new Quill(area, {
+            theme: 'snow',
+            placeholder: 'Текст публикации — заголовки, списки, картинки прямо в тексте',
+            modules: {
+                toolbar: {
+                    container: EDITOR_TOOLBAR,
+                    handlers: { image: function () { pickImage(quill); } }
+                }
+            }
+        });
+        const start = sanitizeHtml(initialHtml || '');
+        if (start) quill.clipboard.dangerouslyPasteHTML(start, 'silent');
+        wireEditorImages(quill);
+        return quill;
+    }
+
+    function editorIsEmpty(quill) {
+        return !quill.getText().trim() && !quill.root.querySelector('img');
+    }
+
+    // Именно getSemanticHTML, а не root.innerHTML: внутри редактора маркированный
+    // список хранится как <ol><li data-list="bullet"> со служебными <span class="ql-ui">,
+    // и вне редактора это превратилось бы в нумерованный список. Семантический вывод
+    // даёт нормальные <ul>/<ol> без служебной разметки.
+    //
+    // Но он же заменяет КАЖДЫЙ пробел на неразрывный — с таким текстом строка не
+    // переносится и абзац уезжает за край экрана. Одиночные неразрывные пробелы
+    // возвращаем обычными; цепочки из двух и более оставляем — это уже осознанный
+    // отступ, набранный автором.
+    function editorHtml(quill) {
+        if (editorIsEmpty(quill)) return '';
+        return quill.getSemanticHTML().replace(/(?:&nbsp;)+/g, m => (m.length === 6 ? ' ' : m));
+    }
+
     function commentsBlock(item) {
         return '<div class="comments-block hidden" data-id="' + item.id + '">' +
             '<div class="comments-list"></div>' +
@@ -194,19 +373,77 @@
 
     const TEXT_FOLD = 600; // длиннее — сворачиваем под «Читать полностью»
 
+    // Тело публикации. Старые посты хранятся обычным текстом (textFormat='plain')
+    // и выводятся с экранированием, новые — размеченные, после чистки sanitizeHtml.
+    function articleBody(item, forceFold) {
+        const raw = item.textContent || item.description || '';
+        const isHtml = item.textFormat === 'html';
+        const long = (isHtml ? htmlToText(raw) : raw).length > TEXT_FOLD;
+        const folded = forceFold || long;
+        const cls = 'article-text' + (isHtml ? ' article-html' : '') + (folded ? ' article-text-fold' : '');
+        return {
+            long,
+            html: '<div class="' + cls + '">' + (isHtml ? sanitizeHtml(raw) : esc(raw)) + '</div>'
+        };
+    }
+
+    function tagsRow(item) {
+        return item.tags && item.tags.length
+            ? '<div class="article-tags">' + item.tags.map(t => '#' + esc(t)).join(' ') + '</div>' : '';
+    }
+
     function renderText(item) {
         mediaCache[item.id] = item;
-        const text = item.textContent || item.description || '';
-        const long = text.length > TEXT_FOLD;
+        const body = articleBody(item);
         return '<div class="article-item" data-media-id="' + item.id + '">' +
             (item.url
                 ? '<img class="article-cover" src="' + esc(item.url) + '" data-full="' + esc(item.url) +
                   '" title="Открыть в полном размере" alt="">' : '') +
             '<div class="article-title">' + esc(item.title) + '</div>' +
-            '<div class="article-text' + (long ? ' article-text-fold' : '') + '">' + esc(text) + '</div>' +
-            (long ? '<button class="article-more js-text-toggle">Читать полностью</button>' : '') +
-            (item.tags && item.tags.length
-                ? '<div class="article-tags">' + item.tags.map(t => '#' + esc(t)).join(' ') + '</div>' : '') +
+            body.html +
+            (body.long ? '<button class="article-more js-text-toggle">Читать полностью</button>' : '') +
+            tagsRow(item) +
+            '<div class="article-controls">' + heartBtn(item) + commentBtn(item) + adminBtns(item) + '</div>' +
+            commentsBlock(item) + '</div>';
+    }
+
+    // ---------- документы (PDF) ----------
+
+    function formatSize(bytes) {
+        const n = Number(bytes) || 0;
+        if (!n) return '';
+        if (n < 1024 * 1024) return Math.max(1, Math.round(n / 1024)) + ' КБ';
+        return (n / 1024 / 1024).toFixed(1).replace('.', ',') + ' МБ';
+    }
+
+    // Имя, под которым файл сохранится у посетителя: берём из названия публикации,
+    // потому что на диске он лежит под техническим именем вида 1725000000-a1b2.pdf
+    function docFileName(item) {
+        const base = String(item.title || 'document').replace(/[\\/:*?"<>|]+/g, ' ').trim() || 'document';
+        return /\.pdf$/i.test(base) ? base : base + '.pdf';
+    }
+
+    const DOC_ICON = '<svg class="doc-icon" viewBox="0 0 24 24">' +
+        '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>' +
+        '<polyline points="14 2 14 8 20 8"></polyline></svg>';
+
+    function docLink(item) {
+        const size = formatSize(item.fileSize);
+        return '<a class="doc-main" href="' + esc(item.url) + '" download="' + esc(docFileName(item)) + '">' +
+            DOC_ICON + '<span class="doc-lines">' +
+            '<span class="doc-name">' + esc(item.title) + '</span>' +
+            '<span class="doc-meta">PDF' + (size ? ' · ' + size : '') + ' · скачать</span>' +
+            '</span></a>';
+    }
+
+    function renderDoc(item) {
+        mediaCache[item.id] = item;
+        const hasNote = !!(item.textContent || item.description);
+        return '<div class="article-item doc-item" data-media-id="' + item.id + '">' +
+            '<div class="article-title">' + esc(item.title) + '</div>' +
+            docLink(item) +
+            (hasNote ? articleBody(item).html : '') +
+            tagsRow(item) +
             '<div class="article-controls">' + heartBtn(item) + commentBtn(item) + adminBtns(item) + '</div>' +
             commentsBlock(item) + '</div>';
     }
@@ -227,12 +464,12 @@
         closeEditForm();
         const form = document.createElement('div');
         form.className = 'edit-block';
+        // у документа правится пояснение к файлу, у текстового поста — сама статья
+        const hasBody = item.type === 'text' || item.type === 'doc';
         form.innerHTML =
             '<input type="text" class="comment-input edit-title" value="' + esc(item.title) + '" placeholder="Название">' +
             '<input type="text" class="comment-input edit-desc" value="' + esc(item.description) + '" placeholder="Описание">' +
-            (item.type === 'text'
-                ? '<textarea class="comment-input edit-text" placeholder="Текст публикации" rows="6">' + esc(item.textContent || '') + '</textarea>'
-                : '') +
+            (hasBody ? '<div class="edit-text-holder"></div>' : '') +
             '<input type="text" class="comment-input edit-tags" value="' + esc((item.tags || []).join(', ')) + '" placeholder="Теги через запятую">' +
             '<select class="comment-input edit-section">' + sectionOptions(item.section) + '</select>' +
             '<div class="edit-actions">' +
@@ -240,6 +477,21 @@
             '<button class="comment-send edit-cancel js-edit-cancel">Отмена</button>' +
             '</div>';
         holder.appendChild(form);
+        if (!hasBody) return;
+        const box = form.querySelector('.edit-text-holder');
+        const raw = item.textContent || '';
+        const quill = createEditor(box, item.textFormat === 'html' ? raw : plainToHtml(raw));
+        if (quill) {
+            form.quillEditor = quill;
+        } else {
+            // редактор недоступен — правим текстом, как раньше
+            const ta = document.createElement('textarea');
+            ta.className = 'comment-input edit-text';
+            ta.rows = 6;
+            ta.placeholder = 'Текст публикации';
+            ta.value = item.textFormat === 'html' ? htmlToText(raw) : raw;
+            box.appendChild(ta);
+        }
     }
 
     async function saveEdit(saveBtn) {
@@ -252,7 +504,13 @@
             tags: form.querySelector('.edit-tags').value,
             section: form.querySelector('.edit-section').value
         };
-        if (textEl) body.text_content = textEl.value;
+        if (form.quillEditor) {
+            body.text_content = editorHtml(form.quillEditor);
+            body.text_format = 'html';
+        } else if (textEl) {
+            body.text_content = textEl.value;
+            body.text_format = 'plain';
+        }
         const data = await api('/api/media/' + id, { method: 'PATCH', body });
         mediaCache[id] = data.media;
         const holder = form.closest('[data-media-id]');
@@ -262,7 +520,16 @@
         const descEl = holder.querySelector('.track-desc');
         if (descEl) descEl.textContent = data.media.description;
         const textBody = holder.querySelector('.article-text');
-        if (textBody) textBody.textContent = data.media.textContent || data.media.description || '';
+        if (textBody) {
+            const raw = data.media.textContent || data.media.description || '';
+            if (data.media.textFormat === 'html') {
+                textBody.classList.add('article-html');
+                textBody.innerHTML = sanitizeHtml(raw);
+            } else {
+                textBody.classList.remove('article-html');
+                textBody.textContent = raw;
+            }
+        }
         // если раздел сменился — убираем элемент из текущего списка
         const screen = holder.closest('.screen');
         if (screen && screen.id !== 'screen-favorites' &&
@@ -304,7 +571,9 @@
         const render = kind === 'track' ? renderTrack
             : kind === 'video' ? renderVideo
                 : kind === 'text' ? renderText : renderPhoto;
-        container.innerHTML = data.media.map(render).join('');
+        // PDF рисуется карточкой со скачиванием в любом разделе, куда его положили
+        container.innerHTML = data.media
+            .map(item => (item.type === 'doc' ? renderDoc(item) : render(item))).join('');
     }
 
     // ---------- поиск ----------
@@ -334,12 +603,14 @@
             return '<div class="video-thumb video-thumb-player"><video controls preload="metadata" src="' +
                 esc(item.url) + '#t=0.001"></video></div>';
         }
+        if (item.type === 'doc') {
+            return docLink(item);
+        }
         if (item.type === 'text') {
-            const text = item.textContent || item.description || '';
             return (item.url
                 ? '<img class="article-cover" src="' + esc(item.url) + '" data-full="' + esc(item.url) +
                   '" title="Открыть в полном размере" alt="">' : '') +
-                '<div class="article-text article-text-fold">' + esc(text) + '</div>';
+                articleBody(item, true).html;
         }
         return '<audio class="media-audio" controls preload="none" src="' + esc(item.url) + '"></audio>';
     }
@@ -608,20 +879,33 @@
 
     // ---------- админ: загрузка ----------
 
+    let uploadQuill = null;
+
     function wireAdminForm() {
         const btn = document.getElementById('upload-submit');
         if (!btn) return;
+        const textEl = document.getElementById('upload-text');
+        // Подменяем простое поле визуальным редактором. Если Quill не загрузился,
+        // textarea остаётся на месте и форма работает как раньше.
+        if (textEl && window.Quill) {
+            const box = document.createElement('div');
+            box.className = 'form-editor';
+            textEl.parentNode.insertBefore(box, textEl);
+            uploadQuill = createEditor(box, '');
+            if (uploadQuill) textEl.classList.add('hidden');
+            else box.remove();
+        }
         btn.addEventListener('click', async () => {
             const status = document.getElementById('upload-status');
             const fileInput = document.getElementById('upload-file');
-            const textEl = document.getElementById('upload-text');
-            const text = textEl ? textEl.value.trim() : '';
+            const text = uploadQuill ? editorHtml(uploadQuill) : (textEl ? textEl.value.trim() : '');
             const fd = new FormData();
             fd.append('section', document.getElementById('upload-section').value);
             fd.append('title', document.getElementById('upload-title').value.trim());
             fd.append('description', document.getElementById('upload-desc').value.trim());
             fd.append('tags', document.getElementById('upload-tags').value.trim());
             fd.append('text_content', text);
+            fd.append('text_format', uploadQuill ? 'html' : 'plain');
             // файл нужен для медиа, но не для текстового поста — достаточно текста
             if (!fileInput.files.length && !text) {
                 status.textContent = 'Выберите файл или введите текст публикации';
@@ -638,7 +922,8 @@
                 document.getElementById('upload-title').value = '';
                 document.getElementById('upload-desc').value = '';
                 document.getElementById('upload-tags').value = '';
-                if (textEl) textEl.value = '';
+                if (uploadQuill) uploadQuill.setText('');
+                else if (textEl) textEl.value = '';
             } catch (err) {
                 status.textContent = err.message;
                 status.classList.add('error');
