@@ -439,10 +439,12 @@
     function renderDoc(item) {
         mediaCache[item.id] = item;
         const hasNote = !!(item.textContent || item.description);
+        const body = hasNote ? articleBody(item) : null;
         return '<div class="article-item doc-item" data-media-id="' + item.id + '">' +
             '<div class="article-title">' + esc(item.title) + '</div>' +
             docLink(item) +
-            (hasNote ? articleBody(item).html : '') +
+            (body ? body.html : '') +
+            (body && body.long ? '<button class="article-more js-text-toggle">Читать полностью</button>' : '') +
             tagsRow(item) +
             '<div class="article-controls">' + heartBtn(item) + commentBtn(item) + adminBtns(item) + '</div>' +
             commentsBlock(item) + '</div>';
