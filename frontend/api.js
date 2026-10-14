@@ -177,6 +177,20 @@
         return d.textContent || '';
     }
 
+    // Стих в редакторе — это абзац на каждую строку. Узнаём его по коротким абзацам:
+    // таким текстам убираем отступ между абзацами (отбивка строф — пустой строкой),
+    // а у прозы абзацы длинные, и отступ между ними остаётся.
+    const VERSE_LINE = 80;
+    function isVerse(html) {
+        const d = document.createElement('div');
+        d.innerHTML = sanitizeHtml(html);
+        const lines = Array.from(d.querySelectorAll('p'))
+            .map(p => p.textContent.replace(/[​ ]/g, ' ').trim())
+            .filter(Boolean);
+        if (lines.length < 4) return false;
+        return lines.filter(t => t.length <= VERSE_LINE).length / lines.length >= 0.8;
+    }
+
     // Старый пост, написанный обычным текстом, при открытии в редакторе разбиваем на абзацы
     function plainToHtml(text) {
         const parts = String(text || '').split(/\n{2,}/).filter(p => p.trim());
@@ -380,7 +394,8 @@
         const isHtml = item.textFormat === 'html';
         const long = (isHtml ? htmlToText(raw) : raw).length > TEXT_FOLD;
         const folded = forceFold || long;
-        const cls = 'article-text' + (isHtml ? ' article-html' : '') + (folded ? ' article-text-fold' : '');
+        const cls = 'article-text' + (isHtml ? ' article-html' : '') +
+            (isHtml && isVerse(raw) ? ' article-verse' : '') + (folded ? ' article-text-fold' : '');
         return {
             long,
             html: '<div class="' + cls + '">' + (isHtml ? sanitizeHtml(raw) : esc(raw)) + '</div>'
@@ -526,9 +541,10 @@
             const raw = data.media.textContent || data.media.description || '';
             if (data.media.textFormat === 'html') {
                 textBody.classList.add('article-html');
+                textBody.classList.toggle('article-verse', isVerse(raw));
                 textBody.innerHTML = sanitizeHtml(raw);
             } else {
-                textBody.classList.remove('article-html');
+                textBody.classList.remove('article-html', 'article-verse');
                 textBody.textContent = raw;
             }
         }
