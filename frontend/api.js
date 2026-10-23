@@ -45,7 +45,7 @@
         'read-articles': 'Читать / Статьи',
         'learn-guides': 'Учить / Гайды',
         'learn-articles': 'Учить / Статьи',
-        'ideas': 'Идеи'
+        'ideas': 'Мыслить'
     };
 
     // Экраны, находимые поиском по названию раздела
@@ -71,7 +71,7 @@
         'screen-learn': 'Учить',
         'screen-learn-guides': 'Учить / Гайды',
         'screen-learn-articles': 'Учить / Статьи',
-        'screen-ideas': 'Идеи',
+        'screen-ideas': 'Мыслить',
         'screen-author-bio': 'Об авторе',
         'screen-favorites': 'Избранные'
     };

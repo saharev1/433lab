@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
     <!-- стили редактора статей — до styles.css, чтобы наши правила их перекрывали -->
     <link rel="stylesheet" href="assets/vendor/quill.snow.css">
-    <link rel="stylesheet" href="styles.css?v=15">
+    <link rel="stylesheet" href="styles.css?v=16">
 </head>
 
 <body>
@@ -75,7 +75,7 @@
                 <div class="menu-item" data-target="screen-watch">СМОТРЕТЬ</div>
                 <div class="menu-item" data-target="screen-read">ЧИТАТЬ</div>
                 <div class="menu-item" data-target="screen-learn">УЧИТЬ</div>
-                <div class="menu-item" data-target="screen-ideas">ИДЕИ</div>
+                <div class="menu-item" data-target="screen-ideas">МЫСЛИТЬ</div>
                 <div class="menu-item auth-only hidden" data-target="screen-favorites">ИЗБРАННЫЕ</div>
                 <div class="menu-item admin-only hidden" data-target="screen-admin">ЗАГРУЗКА</div>
                 <div class="menu-item" id="menu-login-item" data-target="screen-login">ВОЙТИ</div>
@@ -731,7 +731,7 @@
 
 
         <!-- ============================================== -->
-        <!-- ИДЕИ СЕКЦИЯ -->
+        <!-- МЫСЛИТЬ СЕКЦИЯ -->
         <!-- ============================================== -->
 
         <div id="screen-ideas" class="screen screen-light">
@@ -740,7 +740,7 @@
                         <path d="M9 14L4 9l5-5" />
                         <path d="M4 9h10.5A5.5 5.5 0 0 1 20 14.5v0A5.5 5.5 0 0 1 14.5 20H11" />
                     </svg></button>
-                <div class="header-title">ИДЕИ</div>
+                <div class="header-title">МЫСЛИТЬ</div>
             </div>
             <div class="search-box-wrapper light-search"><svg class="search-icon" viewBox="0 0 24 24">
                     <circle cx="11" cy="11" r="8"></circle>
@@ -903,14 +903,14 @@
                         <option value="learn-guides">Учить / Гайды</option>
                         <option value="learn-articles">Учить / Статьи</option>
                     </optgroup>
-                    <optgroup label="Идеи (текст)">
-                        <option value="ideas">Идеи</option>
+                    <optgroup label="Мыслить (текст)">
+                        <option value="ideas">Мыслить</option>
                     </optgroup>
                 </select>
                 <input type="text" class="form-input" id="upload-title" placeholder="Название">
                 <input type="text" class="form-input" id="upload-desc" placeholder="Описание (кратко)">
                 <textarea class="form-input" id="upload-text" rows="6"
-                    placeholder="Текст публикации — для разделов Читать / Учить / Идеи (для медиа можно оставить пустым)"></textarea>
+                    placeholder="Текст публикации — для разделов Читать / Учить / Мыслить (для медиа можно оставить пустым)"></textarea>
                 <input type="text" class="form-input" id="upload-tags" placeholder="Теги через запятую (для поиска)">
                 <input type="file" class="form-input form-file" id="upload-file"
                     accept="image/*,video/*,audio/*,application/pdf,.pdf">
@@ -928,7 +928,7 @@
     <script src="assets/vendor/quill.min.js"></script>
     <script src="assets/vendor/purify.min.js"></script>
     <script src="app.js?v=2"></script>
-    <script src="api.js?v=7"></script>
+    <script src="api.js?v=8"></script>
 </body>
 
 </html>
