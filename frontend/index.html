@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
     <!-- стили редактора статей — до styles.css, чтобы наши правила их перекрывали -->
     <link rel="stylesheet" href="assets/vendor/quill.snow.css">
-    <link rel="stylesheet" href="styles.css?v=16">
+    <link rel="stylesheet" href="styles.css?v=17">
 </head>
 
 <body>
@@ -746,6 +746,8 @@
                     <circle cx="11" cy="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg><input type="text" class="search-input" placeholder="ПОИСК"></div>
+            <!-- игрушки Леонида: карточки рисует toys.js -->
+            <div class="toy-shelf" id="toy-shelf"></div>
             <div class="article-list">
                 <div class="article-item">
                     <div class="article-title">Лекция о брендинге и психотипах аудитории</div>
@@ -927,8 +929,9 @@
          Оба лежат локально в assets/vendor, внешние CDN не нужны. -->
     <script src="assets/vendor/quill.min.js"></script>
     <script src="assets/vendor/purify.min.js"></script>
-    <script src="app.js?v=2"></script>
+    <script src="app.js?v=3"></script>
     <script src="api.js?v=8"></script>
+    <script src="toys.js?v=2"></script>
 </body>
 
 </html>

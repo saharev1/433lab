@@ -167,7 +167,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Initialize first screen: при перезагрузке возвращаемся на сохранённый экран
-    const savedId = window.location.hash.slice(1);
+    // #screen-ideas/print-defects — экран + открытая в нём страница (toys.js)
+    const savedId = window.location.hash.slice(1).split('/')[0];
     const saved = savedId && savedId !== 'screen-home' && document.getElementById(savedId);
     if (saved) {
         history = ['screen-home', savedId];
